@@ -1,0 +1,111 @@
+plugins {
+    id 'com.gradle.plugin-publish' version '0.21.0'
+    id 'java-gradle-plugin'
+    id 'groovy'
+    id 'jacoco'
+    id 'signing'
+    id 'net.researchgate.release' version '3.0.2'
+    id 'ru.vyarus.quality' version '4.8.0'
+    id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
+    id 'ru.vyarus.java-lib' version '2.3.1'
+    id 'ru.vyarus.github-info' version '1.4.0'
+    id 'com.github.ben-manes.versions' version '0.44.0'
+    id "pl.droidsonroids.jacoco.testkit" version "1.0.9"
+}
+
+sourceCompatibility = 1.8
+
+wrapper {
+    gradleVersion = '6.9'
+}
+
+repositories { mavenLocal(); mavenCentral(); gradlePluginPortal() }
+dependencies {
+    testImplementation('org.spockframework:spock-core:2.0-groovy-2.5') {
+        exclude group: 'org.codehaus.groovy'
+    }
+}
+
+group = 'ru.vyarus'
+description = 'Gradle TeaVM plugin'
+
+github {
+    user 'xvik'
+    license 'MIT'
+}
+
+pom {
+    developers {
+        developer {
+            id 'xvik'
+            name 'Vyacheslav Rusakov'
+            email 'vyarus@gmail.com'
+        }
+    }
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            username = findProperty('sonatypeUser')
+            password = findProperty('sonatypePassword')
+        }
+    }
+}
+
+// skip signing for jitpack (snapshots)
+tasks.withType(Sign) {onlyIf { !System.getenv('JITPACK') }}
+
+// Required signing properties for release: signing.keyId, signing.password and signing.secretKeyRingFile
+// (https://docs.gradle.org/current/userguide/signing_plugin.html#sec:signatory_credentials)
+
+javaLib {
+    // don't publish gradle metadata artifact
+    withoutGradleMetadata()
+}
+
+
+gradlePlugin {
+    plugins {
+        teavmPlugin {
+            id = 'ru.vyarus.teavm'
+            displayName = project.description
+            implementationClass = 'ru.vyarus.gradle.plugin.teavm.TeavmPlugin'
+        }
+    }
+}
+pluginBundle {
+    description = 'Gradle TeaVM plugin'
+    tags = ['teavm']
+
+    mavenCoordinates {
+        groupId = project.group
+        artifactId = project.name
+    }
+}
+
+// release.git.requireBranch.set('master')  // default is main
+
+afterReleaseBuild {
+    dependsOn = [
+            'publishMavenPublicationToSonatypeRepository',
+            'closeAndReleaseSonatypeStagingRepository',
+            publishPlugins]
+    doLast {
+        logger.warn "RELEASED $project.group:$project.name:$project.version"
+    }
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events 'skipped', 'failed'
+        exceptionFormat 'full'
+    }
+    maxHeapSize = '512m'
+    doLast {
+        sleep(1000)
+    }
+}
+
+dependencyUpdates.revision = 'release'

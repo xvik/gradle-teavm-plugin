@@ -1,0 +1,17 @@
+{
+  "generator-gradle-plugin": {
+    "githubUser": "xvik",
+    "authorName": "Vyacheslav Rusakov",
+    "authorEmail": "vyarus@gmail.com",
+    "projectName": "gradle-teavm-plugin",
+    "projectGroup": "ru.vyarus",
+    "projectPackage": "ru.vyarus.gradle.plugin.teavm",
+    "projectVersion": "0.1.0",
+    "projectDesc": "Gradle TeaVM plugin",
+    "pluginPortalDesc": "Gradle TeaVM plugin",
+    "pluginPortalTags": "teavm",
+    "centralPublish": true,
+    "pluginPortalUseCustomGroup": true,
+    "usedGeneratorVersion": "2.1.0"
+  }
+}
