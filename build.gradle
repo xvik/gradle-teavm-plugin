@@ -84,7 +84,7 @@ pluginBundle {
     }
 }
 
-// release.git.requireBranch.set('master')  // default is main
+release.git.requireBranch.set('master')
 
 afterReleaseBuild {
     dependsOn = [
