@@ -34,11 +34,11 @@ public class TeavmPlugin implements Plugin<Project> {
 
         // special task with all debug options enabled
         project.getTasks().register("compileTeavmDev", TeavmCompileTask.class, task -> {
-            task.setOptimizationLevel(TeaVMOptimizationLevel.SIMPLE);
-            task.setSourceMapsGenerated(true);
-            task.setDebugInformationGenerated(true);
-            task.setObfuscated(false);
-            task.setSourceFilesCopied(true);
+            task.getOptimizationLevel().set(TeaVMOptimizationLevel.SIMPLE);
+            task.getSourceMapsGenerated().set(true);
+            task.getDebugInformationGenerated().set(true);
+            task.getObfuscated().set(false);
+            task.getSourceFilesCopied().set(true);
         });
     }
 

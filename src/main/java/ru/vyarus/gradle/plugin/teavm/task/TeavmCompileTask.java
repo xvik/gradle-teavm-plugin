@@ -7,6 +7,10 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.workers.WorkQueue;
 import org.gradle.workers.WorkerExecutor;
@@ -14,15 +18,10 @@ import org.teavm.backend.wasm.render.WasmBinaryVersion;
 import org.teavm.tooling.TeaVMTargetType;
 import org.teavm.vm.TeaVMOptimizationLevel;
 import ru.vyarus.gradle.plugin.teavm.util.ClasspathBuilder;
-import ru.vyarus.gradle.plugin.teavm.util.FsUtils;
 import ru.vyarus.gradle.plugin.teavm.util.SourcesBuilder;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
-
-import static ru.vyarus.gradle.plugin.teavm.util.FsUtils.dir;
 
 /**
  * @author Vyacheslav Rusakov
@@ -34,65 +33,103 @@ public abstract class TeavmCompileTask extends DefaultTask {
     protected abstract WorkerExecutor getWorkerExecutor();
 
     // source and class dirs extracted from source sets
+    @Input
+    @Optional
     public abstract ListProperty<String> getSourceSets();
 
     // additional directories with compiled classes
+    @Input
+    @Optional
     public abstract SetProperty<Directory> getExtraClassDirs();
 
     // configurations with dependencies
+    @Input
+    @Optional
     public abstract SetProperty<String> getConfigurations();
 
     // extra dependent sources dir
+    @Input
+    @Optional
     public abstract SetProperty<Directory> getExtraSourceDirs();
 
+    @OutputDirectory
     public abstract DirectoryProperty getTargetDir();
 
+    @Internal
     public abstract DirectoryProperty getCacheDir();
 
+    @Input
     public abstract Property<String> getMainClass();
 
+    @Input
+    @Optional
     public abstract Property<String> getEntryPointName();
 
+    @Input
+    @Optional
     public abstract Property<String> getTargetFileName();
 
+    @Input
     public abstract Property<TeaVMTargetType> getTargetType();
 
+    @Input
     public abstract Property<WasmBinaryVersion> getWasmVersion();
 
+    @Input
     public abstract Property<Boolean> getStopOnErrors();
 
+    @Input
     public abstract Property<Boolean> getObfuscated();
 
+    @Input
     public abstract Property<Boolean> getStrict();
 
+    @Input
     public abstract Property<Boolean> getSourceFilesCopied();
 
+    @Input
     public abstract Property<Boolean> getIncremental();
 
+    @Input
     public abstract Property<Boolean> getDebugInformationGenerated();
 
+    @Input
     public abstract Property<Boolean> getSourceMapsGenerated();
 
+    @Input
     public abstract Property<Boolean> getShortFileNames();
 
+    @Input
     public abstract Property<Boolean> getLongjmpSupported();
 
+    @Input
     public abstract Property<Boolean> getHeapDump();
 
+    @Input
     public abstract Property<Boolean> getFastDependencyAnalysis();
 
+    @Input
     public abstract Property<Integer> getMaxTopLevelNames();
 
+    @Input
     public abstract Property<Integer> getMinHeapSize();
 
+    @Input
     public abstract Property<Integer> getMaxHeapSize();
 
+    @Input
     public abstract Property<TeaVMOptimizationLevel> getOptimizationLevel();
 
+    @Input
+    @Optional
     public abstract ListProperty<String> getTransformers();
 
+    @Input
+    @Optional
     public abstract MapProperty<String, String> getProperties();
 
+    @Input
+    @Optional
     public abstract ListProperty<String> getClassesToPreserve();
 
     @TaskAction
@@ -149,121 +186,5 @@ public abstract class TeavmCompileTask extends DefaultTask {
         workQueue.await();
 
         // todo check for error
-    }
-
-    public void setSourceSets(String... sourceSets) {
-        getSourceSets().set(Arrays.asList(sourceSets));
-    }
-
-    public void setExtraClassDirs(String... dirs) {
-        getExtraClassDirs().set(FsUtils.dirs(getProject(), Arrays.asList(dirs)));
-    }
-
-    public void setTargetDir(String dir) {
-        getTargetDir().set(dir(getProject(), dir));
-    }
-
-    public void setConfigurations(String... configs) {
-        getConfigurations().set(Arrays.asList(configs));
-    }
-
-    public void setExtraSourceDirs(String... dirs) {
-        getExtraSourceDirs().set(FsUtils.dirs(getProject(), Arrays.asList(dirs)));
-    }
-
-    public void setCacheDir(String dir) {
-        getCacheDir().set(dir(getProject(), dir));
-    }
-
-    public void setMainClass(String main) {
-        getMainClass().set(main);
-    }
-
-    public void setEntryPointName(String name) {
-        getEntryPointName().set(name);
-    }
-
-    public void setTargetFileName(String name) {
-        getTargetFileName().set(name);
-    }
-
-    public void setTargetType(TeaVMTargetType type) {
-        getTargetType().set(type);
-    }
-
-    public void setWasmVersion(WasmBinaryVersion version) {
-        getWasmVersion().set(version);
-    }
-
-    public void setStopOnErrors(boolean enable) {
-        getStopOnErrors().set(enable);
-    }
-
-    public void setObfuscated(boolean enable) {
-        getObfuscated().set(enable);
-    }
-
-    public void setStrict(boolean enable) {
-        getStrict().set(enable);
-    }
-
-    public void setSourceFilesCopied(boolean enable) {
-        getSourceFilesCopied().set(enable);
-    }
-
-    public void setIncremental(boolean enable) {
-        getIncremental().set(enable);
-    }
-
-    public void setDebugInformationGenerated(boolean enable) {
-        getDebugInformationGenerated().set(enable);
-    }
-
-    public void setSourceMapsGenerated(boolean enable) {
-        getSourceMapsGenerated().set(enable);
-    }
-
-    public void setShortFileNames(boolean enable) {
-        getShortFileNames().set(enable);
-    }
-
-    public void setLongjmpSupported(boolean enable) {
-        getLongjmpSupported().set(enable);
-    }
-
-    public void setHeapDump(boolean enable) {
-        getHeapDump().set(enable);
-    }
-
-    public void setFastDependencyAnalysis(boolean enable) {
-        getFastDependencyAnalysis().set(enable);
-    }
-
-    public void setMaxTopLevelNames(int max) {
-        getMaxTopLevelNames().set(max);
-    }
-
-    public void setMinHeapSize(int size) {
-        getMinHeapSize().set(size);
-    }
-
-    public void setMaxHeapSize(int size) {
-        getMaxHeapSize().set(size);
-    }
-
-    public void setOptimizationLevel(TeaVMOptimizationLevel level) {
-        getOptimizationLevel().set(level);
-    }
-
-    public void setTransformers(String... transformers) {
-        getTransformers().set(Arrays.asList(transformers));
-    }
-
-    public void setProperties(Map<String, String> props) {
-        getProperties().set(props);
-    }
-
-    public void setClassesToPreserve(String... classes) {
-        getClassesToPreserve().set(Arrays.asList(classes));
     }
 }

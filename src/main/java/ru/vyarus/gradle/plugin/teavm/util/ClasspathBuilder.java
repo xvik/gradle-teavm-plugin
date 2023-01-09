@@ -8,6 +8,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Vyacheslav Rusakov
@@ -36,7 +37,8 @@ public class ClasspathBuilder {
         if (!sourceSets.isEmpty()) {
             project.getExtensions().getByType(SourceSetContainer.class).all(sourceSet -> {
                 if (sourceSets.contains(sourceSet.getName())) {
-                    res.add(sourceSet.getOutput().getSingleFile().getAbsolutePath());
+                    res.addAll(sourceSet.getOutput().getFiles().stream()
+                            .map(File::getAbsolutePath).collect(Collectors.toList()));
                 }
             });
         }

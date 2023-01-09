@@ -13,27 +13,31 @@ class TeavmPluginKitTest extends AbstractKitTest {
         setup:
         build """
             plugins {
+                id 'java'
                 id 'ru.vyarus.teavm'
             }
 
             teavm {
-                foo '1'
-                bar '2'
-            }
-
-            task printFoo() {
-                doLast {
-                    println "fooo: \$teavm.foo"
-                }
+                mainClass = 'example.Main'
             }
 
         """
+        file('src/main/java/example/Main.java')  << """
+package example;
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Do nothing");
+    }
+}
+"""
 
         when: "run task"
-        BuildResult result = run('printFoo')
+        debug()
+        BuildResult result = run('compileTeavm')
 
         then: "task successful"
-        result.task(':printFoo').outcome == TaskOutcome.SUCCESS
-        result.output.contains('fooo: 1')
+        result.task(':compileTeavm').outcome == TaskOutcome.SUCCESS
+//        result.output.contains('fooo: 1')
     }
 }

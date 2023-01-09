@@ -21,7 +21,7 @@ wrapper {
 
 repositories { mavenLocal(); mavenCentral(); gradlePluginPortal() }
 dependencies {
-    compileOnly 'org.teavm:teavm-cli:0.7.0'
+    implementation 'org.teavm:teavm-cli:0.7.0'
 
     testImplementation('org.spockframework:spock-core:2.0-groovy-2.5') {
         exclude group: 'org.codehaus.groovy'

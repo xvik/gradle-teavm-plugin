@@ -32,9 +32,10 @@ public class TeavmExtension {
     private List<String> sourceSets = new ArrayList<>(Collections.singletonList("main"));
     private Set<String> extraClassDirs;
     private List<String> configurations = new ArrayList<>(Collections.singletonList("runtimeClasspath"));
-    private Set<String> extraSourceDirs = null;
-    private String targetDir = null;
-    private String cacheDir = null;
+    // dir with sources or with source jars (1st level)
+    private Set<String> extraSourceDirs;
+    private String targetDir;
+    private String cacheDir;
 
     private String mainClass;
     // main (org/teavm/tooling/TeaVMTool.java:448)

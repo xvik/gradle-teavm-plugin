@@ -28,7 +28,7 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
     @Override
     public void execute() {
         // order follows org/teavm/maven/TeaVMCompileMojo.java
-
+        System.out.println("Working!");
         final BuildStrategy build = new InProcessBuildStrategy(URLClassLoader::new);
         configure(build);
 
@@ -36,8 +36,10 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
         build.setLog(new LogDelegate(logger));
         try {
             run(build);
+            System.out.println("Done!");
         } catch (Exception ex) {
             logger.error("Unexpected compilation error", ex);
+            ex.printStackTrace();
         }
     }
 

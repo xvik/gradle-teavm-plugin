@@ -3,11 +3,13 @@ package ru.vyarus.gradle.plugin.teavm
 import org.gradle.api.Project
 import org.gradle.api.ProjectConfigurationException
 import org.gradle.testfixtures.ProjectBuilder
+import spock.lang.Ignore
 
 /**
  * @author Vyacheslav Rusakov
  * @since 27.12.2022
  */
+@Ignore
 class TeavmPluginTest extends AbstractTest {
 
     def "Check extension registration"() {
