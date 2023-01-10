@@ -3,6 +3,7 @@ package ru.vyarus.gradle.plugin.teavm;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.attributes.Usage;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.teavm.backend.wasm.render.WasmBinaryVersion;
 import org.teavm.tooling.TeaVMTargetType;
@@ -24,12 +25,48 @@ public class TeavmPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         final TeavmExtension extension = project.getExtensions().create("teavm", TeavmExtension.class, project);
-        configureTasks(project);
-        configureDefaults(project, extension);
-        configureShortcuts(project);
+        registerConfiguration(project, extension);
+        registerShortcuts(project);
+        registerTasks(project);
+        configureTaskDefaults(project, extension);
     }
 
-    private void configureTasks(final Project project) {
+    private void registerConfiguration(final Project project, final TeavmExtension extension) {
+        // internal configuration used for cli dependency resolution
+        project.getConfigurations().create("teavm", conf -> {
+            conf.attributes(attrs -> {
+                attrs.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME));
+            });
+            conf.setDescription("TeaVM compiler classpath");
+            conf.setTransitive(true);
+            conf.setVisible(false);
+            conf.setCanBeConsumed(false);
+            conf.setCanBeResolved(true);
+
+            conf.defaultDependencies(dependencies -> {
+                dependencies.add(project.getDependencies().create("org.teavm:teavm-cli:"+extension.getToolVersion()));
+            });
+        });
+    }
+
+    /**
+     * Shortcuts required to simplify configuration in build file: to use task class and teavm enums constants
+     * without complete package.
+     *
+     * @param project project instance
+     */
+    private void registerShortcuts(final Project project) {
+        final ExtraPropertiesExtension extraProps = project.getExtensions().getExtraProperties();
+        // task shortcut
+        extraProps.set(TeavmCompileTask.class.getSimpleName(), TeavmCompileTask.class);
+
+        // enum shortcuts
+        Arrays.asList(TeaVMTargetType.values()).forEach(type -> extraProps.set(type.name(), type));
+        Arrays.asList(WasmBinaryVersion.values()).forEach(type -> extraProps.set(type.name(), type));
+        Arrays.asList(TeaVMOptimizationLevel.values()).forEach(type -> extraProps.set(type.name(), type));
+    }
+
+    private void registerTasks(final Project project) {
         project.getTasks().register("compileTeavm", TeavmCompileTask.class);
 
         // special task with all debug options enabled
@@ -42,7 +79,7 @@ public class TeavmPlugin implements Plugin<Project> {
         });
     }
 
-    private void configureDefaults(final Project project, final TeavmExtension extension) {
+    private void configureTaskDefaults(final Project project, final TeavmExtension extension) {
         project.getTasks().withType(TeavmCompileTask.class).configureEach(task -> {
             task.getSourceSets().convention(extension.getSourceSets());
             task.getExtraClassDirs().convention(dirs(project, extension.getExtraClassDirs()));
@@ -83,16 +120,5 @@ public class TeavmPlugin implements Plugin<Project> {
             }
             // todo kotlin and scala support
         });
-    }
-
-    private void configureShortcuts(Project project) {
-        final ExtraPropertiesExtension extraProps = project.getExtensions().getExtraProperties();
-        // task shortcut
-        extraProps.set(TeavmCompileTask.class.getSimpleName(), TeavmCompileTask.class);
-
-        // enum shortcuts
-        Arrays.asList(TeaVMTargetType.values()).forEach(type -> extraProps.set(type.name(), type));
-        Arrays.asList(WasmBinaryVersion.values()).forEach(type -> extraProps.set(type.name(), type));
-        Arrays.asList(TeaVMOptimizationLevel.values()).forEach(type -> extraProps.set(type.name(), type));
     }
 }

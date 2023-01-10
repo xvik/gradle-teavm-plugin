@@ -16,6 +16,8 @@ class TeavmPluginKitTest extends AbstractKitTest {
                 id 'java'
                 id 'ru.vyarus.teavm'
             }
+            
+            repositories { mavenCentral() }
 
             teavm {
                 mainClass = 'example.Main'

@@ -28,12 +28,12 @@ import java.util.Set;
  */
 public class TeavmExtension {
 
-    // todo think source sets based or files based or both (if source set then invert - specify used sets)
+    private String toolVersion = "0.7.0";
     private List<String> sourceSets = new ArrayList<>(Collections.singletonList("main"));
-    private Set<String> extraClassDirs;
+    private Set<String> extraClassDirs = new HashSet<>();
     private List<String> configurations = new ArrayList<>(Collections.singletonList("runtimeClasspath"));
     // dir with sources or with source jars (1st level)
-    private Set<String> extraSourceDirs;
+    private Set<String> extraSourceDirs = new HashSet<>();
     private String targetDir;
     private String cacheDir;
 
@@ -67,25 +67,26 @@ public class TeavmExtension {
     private List<String> classesToPreserve;
 
 
-    public TeavmExtension(Project project) {
+    public TeavmExtension(final Project project) {
         final String buildDir = project.relativePath(project.getBuildDir());
         targetDir = buildDir + "/teavm";
         cacheDir = buildDir + "/teavm-cache";
-        extraSourceDirs = new HashSet<>();
-        extraClassDirs = new HashSet<>();
+    }
 
-        // do AFTER to properly apply ignored
-        project.afterEvaluate(p -> {
-            boolean initSources = extraSourceDirs == null;
-            boolean initClasses = extraClassDirs == null;
+    public String getToolVersion() {
+        return toolVersion;
+    }
 
-            if (initSources) {
-                extraSourceDirs = new HashSet<>();
-            }
-            if (initClasses) {
-                extraClassDirs = new HashSet<>();
-            }
-        });
+    public void setToolVersion(String toolVersion) {
+        this.toolVersion = toolVersion;
+    }
+
+    public void setTransformers(List<String> transformers) {
+        this.transformers = transformers;
+    }
+
+    public void setClassesToPreserve(List<String> classesToPreserve) {
+        this.classesToPreserve = classesToPreserve;
     }
 
     public List<String> getSourceSets() {

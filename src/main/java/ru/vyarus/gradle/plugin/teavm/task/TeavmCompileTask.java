@@ -1,6 +1,7 @@
 package ru.vyarus.gradle.plugin.teavm.task;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.ListProperty;
@@ -134,7 +135,11 @@ public abstract class TeavmCompileTask extends DefaultTask {
 
     @TaskAction
     public void compile() {
-        final WorkQueue workQueue = getWorkerExecutor().noIsolation();
+        // teavm configuration used for worker classpath
+        final WorkQueue workQueue = getWorkerExecutor().classLoaderIsolation(workerSpec -> {
+            final Configuration teavmConf = getProject().getConfigurations().getByName("teavm");
+            workerSpec.getClasspath().from(teavmConf);
+        });
 
         workQueue.submit(CompileWorker.class, parameters -> {
 
