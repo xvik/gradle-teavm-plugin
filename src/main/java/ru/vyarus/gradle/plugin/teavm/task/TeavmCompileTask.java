@@ -145,7 +145,7 @@ public abstract class TeavmCompileTask extends DefaultTask {
             workerSpec.getClasspath().from(teavmConf);
         });
 
-        // file to print compile errors into
+        // file indicating compilation error
         final File resultFile = getProject().getLayout()
                 .getBuildDirectory().file(getName() + ".error").get().getAsFile();
         if (resultFile.exists()) {
