@@ -1,12 +1,15 @@
 package ru.vyarus.gradle.plugin.teavm.task;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.GradleException;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
@@ -22,6 +25,7 @@ import ru.vyarus.gradle.plugin.teavm.util.ClasspathBuilder;
 import ru.vyarus.gradle.plugin.teavm.util.SourcesBuilder;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.util.Collections;
 
 /**
@@ -141,6 +145,13 @@ public abstract class TeavmCompileTask extends DefaultTask {
             workerSpec.getClasspath().from(teavmConf);
         });
 
+        // file to print compile errors into
+        final File resultFile = getProject().getLayout()
+                .getBuildDirectory().file(getName() + ".error").get().getAsFile();
+        if (resultFile.exists()) {
+            resultFile.delete();
+        }
+
         workQueue.submit(CompileWorker.class, parameters -> {
 
             final ClasspathBuilder cp = new ClasspathBuilder(getProject(),
@@ -186,10 +197,15 @@ public abstract class TeavmCompileTask extends DefaultTask {
             parameters.getTransformers().set(getTransformers());
             parameters.getProperties().set(getProperties());
             parameters.getClassesToPreserve().set(getClassesToPreserve());
+
+            parameters.getErrorFile().set(resultFile);
         });
 
         workQueue.await();
 
-        // todo check for error
+        if (getStopOnErrors().get() && resultFile.exists()) {
+            resultFile.delete();
+            throw new GradleException("Teavm compilation failed");
+        }
     }
 }

@@ -3,6 +3,7 @@ package ru.vyarus.gradle.plugin.teavm.task;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFile;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
@@ -21,7 +22,7 @@ public interface CompileParameters extends WorkParameters {
      * Worker process can't directly return anything
      * @return
      */
-    DirectoryProperty getReportDir();
+    RegularFileProperty getErrorFile();
     ListProperty<String> getClassPathEntries();
     ListProperty<Directory> getSourceDirectories();
     ListProperty<RegularFile> getSourceJars();

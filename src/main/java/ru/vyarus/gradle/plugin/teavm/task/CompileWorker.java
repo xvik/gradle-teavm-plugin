@@ -1,8 +1,7 @@
 package ru.vyarus.gradle.plugin.teavm.task;
 
 import org.gradle.workers.WorkAction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.teavm.apachecommons.io.FileUtils;
 import org.teavm.tooling.TeaVMProblemRenderer;
 import org.teavm.tooling.TeaVMToolLog;
 import org.teavm.tooling.builder.BuildResult;
@@ -11,10 +10,13 @@ import org.teavm.tooling.builder.InProcessBuildStrategy;
 import org.teavm.vm.TeaVMPhase;
 import org.teavm.vm.TeaVMProgressFeedback;
 import org.teavm.vm.TeaVMProgressListener;
+import ru.vyarus.gradle.plugin.teavm.util.DurationFormatter;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URLClassLoader;
 import java.util.Properties;
-import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /**
  * @author Vyacheslav Rusakov
@@ -22,24 +24,20 @@ import java.util.StringJoiner;
  */
 public abstract class CompileWorker implements WorkAction<CompileParameters> {
 
-    // no way currently to use project logger inside worker
-    private final Logger logger = LoggerFactory.getLogger(CompileWorker.class);
-
     @Override
     public void execute() {
         // order follows org/teavm/maven/TeaVMCompileMojo.java
-        System.out.println("Working!");
         final BuildStrategy build = new InProcessBuildStrategy(URLClassLoader::new);
         configure(build);
 
-        build.setProgressListener(new LogListener(logger));
-        build.setLog(new LogDelegate(logger));
+        build.setProgressListener(new LogListener());
+        build.setLog(new LogDelegate());
         try {
             run(build);
-            System.out.println("Done!");
         } catch (Exception ex) {
-            logger.error("Unexpected compilation error", ex);
+            System.err.println("Unexpected compilation error");
             ex.printStackTrace();
+            indicateFail();
         }
     }
 
@@ -92,38 +90,48 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
         build.setHeapDump(getParameters().getHeapDump().get());
     }
 
-    private void run(BuildStrategy build) throws Exception {
-        BuildResult result = build.build();
+    private void run(final BuildStrategy build) throws Exception {
+        long watch = System.currentTimeMillis();
+        final BuildResult result = build.build();
+        long time = System.currentTimeMillis() - watch;
 
-        if(result.getProblems() != null) {
-            final ErrorsInterceptor collector = new ErrorsInterceptor(logger);
-            TeaVMProblemRenderer.describeProblems(result.getCallGraph(), result.getProblems(), collector);
+        if (result.getProblems() != null) {
+            TeaVMProblemRenderer.describeProblems(result.getCallGraph(), result.getProblems(), new LogDelegate());
 
             if (!result.getProblems().getSevereProblems().isEmpty()) {
-                // todo write file describing error (task would decide to stop execution or not)
-                System.out.println("ERROR: " +collector.getErrors());
+                // indicate error
+                indicateFail();
             }
-        } else {
-            final StringBuilder res = new StringBuilder("\n\n");
-            res.append(String.format("\t%s-30: %s%n", "classes used", result.getClasses()));
-            res.append(String.format("\t%s-30: %s%n", "generated files", result.getGeneratedFiles()));
-            res.append(String.format("\t%s-30: %s%n", "used resources", result.getUsedResources()));
-            logger.info("TeaVM compilation stats: {}", res.toString());
+        }
+
+        if (result.getProblems() == null || result.getProblems().getSevereProblems().isEmpty()) {
+            System.out.println("Resources used: " + result.getUsedResources().size());
+            System.out.println("Generated files: " + result.getGeneratedFiles().stream()
+                    .map(s -> s.replace(getParameters().getTargetDirectory().get().getAsFile()
+                            .getAbsolutePath() + File.separator, "") + " ("
+                            + FileUtils.byteCountToDisplaySize(new File(s).length()) + ")")
+                    .collect(Collectors.joining(", ")));
+            System.out.println("Compilation time: " + DurationFormatter.format(time));
+        }
+
+    }
+
+    private void indicateFail() {
+        try {
+            getParameters().getErrorFile().get().getAsFile().createNewFile();
+        } catch (IOException ex) {
+            System.err.println("Error creating marker file");
+            ex.printStackTrace();
         }
     }
 
     public static class LogListener implements TeaVMProgressListener {
-        private final Logger logger;
         private double target = 1.0;
         private TeaVMPhase currentPhase;
 
-        public LogListener(Logger logger) {
-            this.logger = logger;
-        }
-
         @Override
         public TeaVMProgressFeedback phaseStarted(TeaVMPhase phase, int maxSteps) {
-            logger.info("TeaVM: Progress, phase: {} started, targeted steps: {}", phase, (int) maxSteps);
+            System.out.printf("\rTeaVM: Progress, phase: %s started, targeted steps: %s", phase, maxSteps);
             target = maxSteps;
             currentPhase = phase;
             return TeaVMProgressFeedback.CONTINUE;
@@ -131,76 +139,59 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
 
         @Override
         public TeaVMProgressFeedback progressReached(int stepsReached) {
-            logger.info("TeaVM: {}; progress reached: {} of {} -- {}%", currentPhase, stepsReached, (int) target,
+            System.out.printf("\rTeaVM: %s; progress reached: %s of %s -- %s%%", currentPhase, stepsReached, (int) target,
                     (int) (Math.round(stepsReached / target * 100.0)));
             return TeaVMProgressFeedback.CONTINUE;
         }
     }
 
+    // gradle workers does not support loggers!
     public static class LogDelegate implements TeaVMToolLog {
 
-        private final Logger logger;
-
-        public LogDelegate(final Logger logger) {
-            this.logger = logger;
-        }
+        // \r required to remove last LogListener line from output
 
         @Override
         public void info(final String s) {
-            logger.info(s);
+            System.out.println("\r" + s);
         }
 
         @Override
         public void debug(String s) {
-            logger.debug(s);
+            System.out.println("\r" + s);
         }
 
         @Override
         public void warning(String s) {
-            logger.warn(s);
+            System.out.println("\rWARNING: " + s);
         }
 
         @Override
         public void error(String s) {
-            logger.error(s);
+            System.out.println("\rERROR: " + s);
         }
 
         @Override
         public void info(String s, Throwable throwable) {
-            logger.info(s, throwable);
+            System.out.println("\r" + s);
+            throwable.printStackTrace();
         }
 
         @Override
         public void debug(String s, Throwable throwable) {
-            logger.debug(s, throwable);
+            System.out.println("\r" + s);
+            throwable.printStackTrace();
         }
 
         @Override
         public void warning(String s, Throwable throwable) {
-            logger.warn(s, throwable);
+            System.out.println("\rWARNING: " + s);
+            throwable.printStackTrace();
         }
 
         @Override
         public void error(String s, Throwable throwable) {
-            logger.error(s, throwable);
-        }
-    }
-
-    public static class ErrorsInterceptor extends LogDelegate {
-        private StringJoiner errors = new StringJoiner("\n");
-
-        public ErrorsInterceptor(Logger logger) {
-            super(logger);
-        }
-
-        @Override
-        public void error(String s) {
-            super.error(s);
-            errors.add(s);
-        }
-
-        public String getErrors() {
-            return errors.toString();
+            System.err.println("\rERROR: " + s);
+            throwable.printStackTrace();
         }
     }
 }
