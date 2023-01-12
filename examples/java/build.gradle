@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+    id 'ru.vyarus.teavm' version '1.0.0-SNAPSHOT'
+}
+
+ext {
+    teavm = '0.7.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.teavm:teavm-classlib:$teavm"
+    implementation "org.teavm:teavm-jso:$teavm"
+}
+
+teavm {
+    dev = false
+    debug = true
+    mainClass = 'example.Client'
+}
+
+tasks.register('buildWebapp', Copy) {
+    from('src/main/webapp')
+    from(compileTeavm) {
+        into 'js'
+    }
+    into 'build/webapp'
+}

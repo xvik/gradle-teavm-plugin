@@ -1,0 +1,34 @@
+plugins {
+    id 'java'
+    id 'ru.vyarus.teavm' version '1.0.0-SNAPSHOT'
+}
+
+ext {
+    teavm = '0.7.0'
+    flavour = '0.2.1'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.teavm:teavm-classlib:$teavm"
+    implementation "org.teavm.flavour:teavm-flavour-widgets:$flavour"
+    implementation "org.teavm.flavour:teavm-flavour-rest:$flavour"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:2.5.4"
+}
+
+teavm {
+    dev = false
+    debug = false
+    mainClass = 'example.Client'
+}
+
+tasks.register('buildWebapp', Copy) {
+    from('src/main/webapp')
+    from(compileTeavm) {
+        into 'js'
+    }
+    into 'build/webapp'
+}
