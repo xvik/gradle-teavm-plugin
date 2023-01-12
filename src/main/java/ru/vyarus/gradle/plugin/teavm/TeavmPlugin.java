@@ -27,8 +27,7 @@ public class TeavmPlugin implements Plugin<Project> {
         final TeavmExtension extension = project.getExtensions().create("teavm", TeavmExtension.class, project);
         registerConfiguration(project, extension);
         registerShortcuts(project);
-        registerTasks(project);
-        configureTaskDefaults(project, extension);
+        configureTask(project, extension);
     }
 
     private void registerConfiguration(final Project project, final TeavmExtension extension) {
@@ -66,21 +65,14 @@ public class TeavmPlugin implements Plugin<Project> {
         Arrays.asList(TeaVMOptimizationLevel.values()).forEach(type -> extraProps.set(type.name(), type));
     }
 
-    private void registerTasks(final Project project) {
+    private void configureTask(final Project project, final TeavmExtension extension) {
         project.getTasks().register("compileTeavm", TeavmCompileTask.class);
 
-        // special task with all debug options enabled
-        project.getTasks().register("compileTeavmDev", TeavmCompileTask.class, task -> {
-            task.getOptimizationLevel().set(TeaVMOptimizationLevel.SIMPLE);
-            task.getSourceMapsGenerated().set(true);
-            task.getDebugInformationGenerated().set(true);
-            task.getObfuscated().set(false);
-            task.getSourceFilesCopied().set(true);
-        });
-    }
-
-    private void configureTaskDefaults(final Project project, final TeavmExtension extension) {
         project.getTasks().withType(TeavmCompileTask.class).configureEach(task -> {
+            final TeavmExtension.Dev dev = extension.isDev() ? extension.getDevOptions() : null;
+
+            task.getDebug().set(extension.isDebug());
+
             task.getSourceSets().convention(extension.getSourceSets());
             task.getExtraClassDirs().convention(dirs(project, extension.getExtraClassDirs()));
             task.getConfigurations().convention(extension.getConfigurations());
@@ -95,26 +87,31 @@ public class TeavmPlugin implements Plugin<Project> {
             task.getWasmVersion().convention(extension.getWasmVersion());
 
             task.getStopOnErrors().convention(extension.isStopOnErrors());
-            task.getObfuscated().convention(extension.isObfuscated());
-            task.getStrict().convention(extension.isStrict());
-            task.getSourceFilesCopied().convention(extension.isSourceFilesCopied());
-            task.getIncremental().convention(extension.isIncremental());
-            task.getDebugInformationGenerated().convention(extension.isDebugInformationGenerated());
-            task.getSourceMapsGenerated().convention(extension.isSourceMapsGenerated());
+            task.getObfuscated().convention(dev == null ? extension.isObfuscated() : dev.isObfuscated());
+            task.getStrict().convention(dev == null ? extension.isStrict() : dev.isStrict());
+            task.getSourceFilesCopied().convention(
+                    dev == null ? extension.isSourceFilesCopied() : dev.isSourceFilesCopied());
+            task.getIncremental().convention(dev == null ? extension.isIncremental() : dev.isIncremental());
+            task.getDebugInformationGenerated().convention(
+                    dev == null ? extension.isDebugInformationGenerated() : dev.isDebugInformationGenerated());
+            task.getSourceMapsGenerated().convention(
+                    dev == null ? extension.isSourceMapsGenerated() : dev.isSourceMapsGenerated());
             task.getShortFileNames().convention(extension.isShortFileNames());
             task.getLongjmpSupported().convention(extension.isLongjmpSupported());
             task.getHeapDump().convention(extension.isHeapDump());
-            task.getFastDependencyAnalysis().convention(extension.isFastDependencyAnalysis());
+            task.getFastDependencyAnalysis().convention(
+                    dev == null ? extension.isFastDependencyAnalysis() : dev.isFastDependencyAnalysis());
 
             task.getMaxTopLevelNames().convention(extension.getMaxTopLevelNames());
             task.getMinHeapSize().convention(extension.getMinHeapSize());
             task.getMaxHeapSize().convention(extension.getMaxHeapSize());
-            task.getOptimizationLevel().convention(extension.getOptimizationLevel());
+            task.getOptimizationLevel().convention(
+                    dev == null ? extension.getOptimizationLevel() : dev.getOptimizationLevel());
             task.getTransformers().convention(extension.getTransformers());
             task.getProperties().convention(extension.getProperties());
             task.getClassesToPreserve().convention(extension.getClassesToPreserve());
 
-            Task compileJava = project.getTasks().findByPath("compileJava");
+            Task compileJava = project.getTasks().findByPath("classes");
             if (compileJava != null) {
                 task.dependsOn(compileJava);
             }

@@ -37,6 +37,11 @@ public abstract class TeavmCompileTask extends DefaultTask {
     @Inject
     protected abstract WorkerExecutor getWorkerExecutor();
 
+    @Input
+    @Optional
+    public abstract Property<Boolean> getDebug();
+
+    // todo it must accept FOLDERS in order to properly handle up to date!
     // source and class dirs extracted from source sets
     @Input
     @Optional
@@ -153,13 +158,16 @@ public abstract class TeavmCompileTask extends DefaultTask {
         }
 
         workQueue.submit(CompileWorker.class, parameters -> {
+            parameters.getDebug().set(getDebug());
 
             final ClasspathBuilder cp = new ClasspathBuilder(getProject(),
+                    getDebug().get(),
                     getSourceSets().get(),
                     getConfigurations().get(),
                     getExtraClassDirs().get());
 
             final SourcesBuilder src = new SourcesBuilder(getProject(),
+                    getDebug().get(),
                     getSourceSets().get(),
                     // avoid source jars resolution if not required
                     getSourceFilesCopied().get() ? getConfigurations().get() : Collections.emptySet(),

@@ -18,6 +18,7 @@ import org.teavm.vm.TeaVMOptimizationLevel;
  */
 public interface CompileParameters extends WorkParameters {
 
+    Property<Boolean> getDebug();
     /**
      * Worker process can't directly return anything
      * @return

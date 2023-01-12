@@ -28,8 +28,12 @@ import java.util.Set;
  */
 public class TeavmExtension {
 
+    // quick enable for teavm debug options (see dev subclosure)
+    private boolean dev = false;
+    // print plugin-debug information
+    private boolean debug = false;
     private String toolVersion = "0.7.0";
-    private List<String> sourceSets = new ArrayList<>(Collections.singletonList("main"));
+    private List<String> sourceSets = new ArrayList<>(Arrays.asList("main", "kotlin", "scala"));
     private Set<String> extraClassDirs = new HashSet<>();
     private List<String> configurations = new ArrayList<>(Collections.singletonList("runtimeClasspath"));
     // dir with sources or with source jars (1st level)
@@ -66,11 +70,29 @@ public class TeavmExtension {
     private Map<String, String> properties = null;
     private List<String> classesToPreserve;
 
+    private Dev devOptions = new Dev();
+
 
     public TeavmExtension(final Project project) {
         final String buildDir = project.relativePath(project.getBuildDir());
         targetDir = buildDir + "/teavm";
         cacheDir = buildDir + "/teavm-cache";
+    }
+
+    public boolean isDev() {
+        return dev;
+    }
+
+    public void setDev(boolean dev) {
+        this.dev = dev;
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 
     public String getToolVersion() {
@@ -319,5 +341,88 @@ public class TeavmExtension {
 
     public void setClassesToPreserve(String... classesToPreserve) {
         this.classesToPreserve = Arrays.asList(classesToPreserve);
+    }
+
+    public Dev getDevOptions() {
+        return devOptions;
+    }
+
+    public void setDevOptions(Dev devOptions) {
+        this.devOptions = devOptions;
+    }
+
+    public static class Dev {
+        private TeaVMOptimizationLevel optimizationLevel = TeaVMOptimizationLevel.SIMPLE;
+        private boolean obfuscated = false;
+        private boolean strict = false;
+        private boolean sourceFilesCopied = true;
+        private boolean incremental = false;
+        private boolean debugInformationGenerated = true;
+        private boolean sourceMapsGenerated = true;
+        private boolean fastDependencyAnalysis = false;
+
+        public TeaVMOptimizationLevel getOptimizationLevel() {
+            return optimizationLevel;
+        }
+
+        public void setOptimizationLevel(TeaVMOptimizationLevel optimizationLevel) {
+            this.optimizationLevel = optimizationLevel;
+        }
+
+        public boolean isObfuscated() {
+            return obfuscated;
+        }
+
+        public void setObfuscated(boolean obfuscated) {
+            this.obfuscated = obfuscated;
+        }
+
+        public boolean isStrict() {
+            return strict;
+        }
+
+        public void setStrict(boolean strict) {
+            this.strict = strict;
+        }
+
+        public boolean isSourceFilesCopied() {
+            return sourceFilesCopied;
+        }
+
+        public void setSourceFilesCopied(boolean sourceFilesCopied) {
+            this.sourceFilesCopied = sourceFilesCopied;
+        }
+
+        public boolean isIncremental() {
+            return incremental;
+        }
+
+        public void setIncremental(boolean incremental) {
+            this.incremental = incremental;
+        }
+
+        public boolean isDebugInformationGenerated() {
+            return debugInformationGenerated;
+        }
+
+        public void setDebugInformationGenerated(boolean debugInformationGenerated) {
+            this.debugInformationGenerated = debugInformationGenerated;
+        }
+
+        public boolean isSourceMapsGenerated() {
+            return sourceMapsGenerated;
+        }
+
+        public void setSourceMapsGenerated(boolean sourceMapsGenerated) {
+            this.sourceMapsGenerated = sourceMapsGenerated;
+        }
+
+        public boolean isFastDependencyAnalysis() {
+            return fastDependencyAnalysis;
+        }
+
+        public void setFastDependencyAnalysis(boolean fastDependencyAnalysis) {
+            this.fastDependencyAnalysis = fastDependencyAnalysis;
+        }
     }
 }
