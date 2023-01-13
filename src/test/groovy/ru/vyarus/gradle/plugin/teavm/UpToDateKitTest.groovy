@@ -48,7 +48,8 @@ public class Main {
         result.task(':compileTeavm').outcome == TaskOutcome.UP_TO_DATE
         
         when: "source changed"
-        file('src/main/java/example/Main.java').newWriter()  << """
+        file('src/main/java/example/Main.java').newWriter().withWriter {
+            it << """
 package example;
 
 public class Main {
@@ -57,6 +58,7 @@ public class Main {
     }
 }
 """
+        }
         result = run('compileTeavm')
 
         then:

@@ -2,7 +2,6 @@ package ru.vyarus.gradle.plugin.teavm.task;
 
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.MapProperty;
@@ -11,6 +10,8 @@ import org.gradle.workers.WorkParameters;
 import org.teavm.backend.wasm.render.WasmBinaryVersion;
 import org.teavm.tooling.TeaVMTargetType;
 import org.teavm.vm.TeaVMOptimizationLevel;
+
+import java.io.File;
 
 /**
  * @author Vyacheslav Rusakov
@@ -26,7 +27,7 @@ public interface CompileParameters extends WorkParameters {
     RegularFileProperty getErrorFile();
     ListProperty<String> getClassPathEntries();
     ListProperty<Directory> getSourceDirectories();
-    ListProperty<RegularFile> getSourceJars();
+    ListProperty<File> getSourceJars();
     DirectoryProperty getTargetDirectory();
     DirectoryProperty getCacheDirectory();
 

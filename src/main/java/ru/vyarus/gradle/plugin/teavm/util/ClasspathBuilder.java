@@ -1,6 +1,7 @@
 package ru.vyarus.gradle.plugin.teavm.util;
 
 import org.gradle.api.Project;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.Directory;
 import org.gradle.api.tasks.SourceSetContainer;
 
@@ -19,14 +20,14 @@ public class ClasspathBuilder {
     private final Project project;
     private final boolean debug;
     private final List<String> sourceSets;
-    private final Set<Directory> extraClassDirs;
-    private final Set<String> configurations;
+    private final Set<String> extraClassDirs;
+    private final List<String> configurations;
 
     public ClasspathBuilder(final Project project,
                             final boolean debug,
                             final List<String> sourceSets,
-                            final Set<String> configurations,
-                            final Set<Directory> extraClassDirs) {
+                            final List<String> configurations,
+                            final Set<String> extraClassDirs) {
         this.project = project;
         this.debug = debug;
         this.sourceSets = sourceSets;
@@ -34,17 +35,19 @@ public class ClasspathBuilder {
         this.extraClassDirs = extraClassDirs;
     }
 
-    public List<String> prepareClassPath() {
-        final List<String> res = new ArrayList<>();
+    public List<Directory> getDirectories() {
+        final List<Directory> res = new ArrayList<>();
         // compiled sources
         if (!sourceSets.isEmpty()) {
             project.getExtensions().getByType(SourceSetContainer.class).all(sourceSet -> {
                 if (sourceSets.contains(sourceSet.getName())) {
-                    final List<String> collect = sourceSet.getOutput().getFiles().stream()
-                            .map(File::getAbsolutePath).collect(Collectors.toList());
+                    final List<Directory> collect = sourceSet.getOutput().getFiles().stream()
+                            .map(s -> project.getLayout().getProjectDirectory().dir(s.getAbsolutePath()))
+                            .collect(Collectors.toList());
                     if (debug) {
                         System.out.println("'" + sourceSet.getName() + "' source set classes: \n" + collect.stream()
-                                .map(s -> "\t" + s.replace(project.getProjectDir().getAbsolutePath() + "/", ""))
+                                .map(s -> "\t" + s.getAsFile().getAbsolutePath()
+                                        .replace(project.getProjectDir().getAbsolutePath() + "/", ""))
                                 .collect(Collectors.joining("\n")));
                     }
                     res.addAll(collect);
@@ -52,18 +55,23 @@ public class ClasspathBuilder {
             });
         }
         // extra locations
-        final List<String> extras = new ArrayList<>();
-        for (Directory dir : extraClassDirs) {
-            extras.add(dir.getAsFile().getAbsolutePath());
+        final List<Directory> extras = new ArrayList<>();
+        for (String dir : extraClassDirs) {
+            extras.add(project.getLayout().getProjectDirectory().dir(dir));
         }
         if (!extras.isEmpty()) {
             if (debug) {
                 System.out.println("Extra class directories: \n" + extras.stream()
-                        .map(s -> "\t" + s).collect(Collectors.joining("\n")));
+                        .map(s -> "\t" + s.getAsFile().getAbsolutePath()
+                                .replace(project.getProjectDir().getAbsolutePath() + "/", ""))
+                        .collect(Collectors.joining("\n")));
             }
             res.addAll(extras);
         }
+        return res;
+    }
 
+    public void dependencies(final ConfigurableFileCollection files) {
         // jars
         for (String config : configurations) {
             final List<File> jars = new ArrayList<>(project.getConfigurations().getByName(config).getFiles());
@@ -73,9 +81,8 @@ public class ClasspathBuilder {
                             .map(s -> "\t" + String.format("%-50s  %s", s.getName(), s.getAbsolutePath()))
                             .collect(Collectors.joining("\n")));
                 }
-                res.addAll(jars.stream().map(File::getAbsolutePath).collect(Collectors.toList()));
+                files.from(jars);
             }
         }
-        return res;
     }
 }

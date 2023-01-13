@@ -58,7 +58,7 @@ public class Main {
 
             teavm {
                 // https://teavm.org/maven/repository/org/teavm/teavm-cli/
-                toolVersion = '0.7.0-dev-1209'
+                version = '0.7.0-dev-1209'
                 mainClass = 'example.Main'
             }
 

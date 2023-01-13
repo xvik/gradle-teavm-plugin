@@ -57,7 +57,7 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
             getParameters().getSourceDirectories().get().forEach(directory ->
                     build.addSourcesDirectory(directory.getAsFile().getAbsolutePath()));
             getParameters().getSourceJars().get().forEach(jar ->
-                    build.addSourcesJar(jar.getAsFile().getAbsolutePath()));
+                    build.addSourcesJar(jar.getAbsolutePath()));
         }
 
         if (getParameters().getProperties().isPresent()) {

@@ -32,7 +32,12 @@ public class TeavmExtension {
     private boolean dev = false;
     // print plugin-debug information
     private boolean debug = false;
-    private String toolVersion = "0.7.0";
+    
+    // todo option to include resources in sources
+//    sourceSets.main.resources.srcDir 'src/main/java'
+//    sourceSets.main.output.resourcesDir sourceSets.main.java.outputDir
+
+    private String version = "0.7.0";
     private List<String> sourceSets = new ArrayList<>(Arrays.asList("main", "kotlin", "scala"));
     private Set<String> extraClassDirs = new HashSet<>();
     private List<String> configurations = new ArrayList<>(Collections.singletonList("runtimeClasspath"));
@@ -95,12 +100,12 @@ public class TeavmExtension {
         this.debug = debug;
     }
 
-    public String getToolVersion() {
-        return toolVersion;
+    public String getVersion() {
+        return version;
     }
 
-    public void setToolVersion(String toolVersion) {
-        this.toolVersion = toolVersion;
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public void setTransformers(List<String> transformers) {

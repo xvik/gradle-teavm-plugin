@@ -9,11 +9,12 @@ import org.teavm.backend.wasm.render.WasmBinaryVersion;
 import org.teavm.tooling.TeaVMTargetType;
 import org.teavm.vm.TeaVMOptimizationLevel;
 import ru.vyarus.gradle.plugin.teavm.task.TeavmCompileTask;
+import ru.vyarus.gradle.plugin.teavm.util.ClasspathBuilder;
+import ru.vyarus.gradle.plugin.teavm.util.SourcesBuilder;
 
 import java.util.Arrays;
 
 import static ru.vyarus.gradle.plugin.teavm.util.FsUtils.dir;
-import static ru.vyarus.gradle.plugin.teavm.util.FsUtils.dirs;
 
 /**
  * teavm plugin.
@@ -43,7 +44,7 @@ public class TeavmPlugin implements Plugin<Project> {
             conf.setCanBeResolved(true);
 
             conf.defaultDependencies(dependencies -> {
-                dependencies.add(project.getDependencies().create("org.teavm:teavm-cli:"+extension.getToolVersion()));
+                dependencies.add(project.getDependencies().create("org.teavm:teavm-cli:" + extension.getVersion()));
             });
         });
     }
@@ -73,10 +74,25 @@ public class TeavmPlugin implements Plugin<Project> {
 
             task.getDebug().set(extension.isDebug());
 
-            task.getSourceSets().convention(extension.getSourceSets());
-            task.getExtraClassDirs().convention(dirs(project, extension.getExtraClassDirs()));
-            task.getConfigurations().convention(extension.getConfigurations());
-            task.getExtraSourceDirs().convention(dirs(project, extension.getExtraSourceDirs()));
+            final ClasspathBuilder cp = new ClasspathBuilder(project,
+                    extension.isDebug(),
+                    extension.getSourceSets(),
+                    extension.getConfigurations(),
+                    extension.getExtraClassDirs());
+            task.getClassPath().convention(cp.getDirectories());
+            cp.dependencies(task.getDependencies());
+
+            if (extension.isSourceFilesCopied()) {
+                final SourcesBuilder src = new SourcesBuilder(project,
+                        extension.isDebug(),
+                        extension.getSourceSets(),
+                        extension.getConfigurations(),
+                        extension.getExtraSourceDirs());
+                src.resolveSources();
+                task.getSources().convention(src.getSourceDirs());
+                src.dependencies(task.getSourceDependencies());
+            }
+
             task.getTargetDir().convention(dir(project, extension.getTargetDir()));
             task.getCacheDir().convention(dir(project, extension.getCacheDir()));
 

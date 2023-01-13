@@ -3,15 +3,15 @@ package ru.vyarus.gradle.plugin.teavm.task;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
@@ -21,12 +21,12 @@ import org.gradle.workers.WorkerExecutor;
 import org.teavm.backend.wasm.render.WasmBinaryVersion;
 import org.teavm.tooling.TeaVMTargetType;
 import org.teavm.vm.TeaVMOptimizationLevel;
-import ru.vyarus.gradle.plugin.teavm.util.ClasspathBuilder;
-import ru.vyarus.gradle.plugin.teavm.util.SourcesBuilder;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Vyacheslav Rusakov
@@ -41,26 +41,21 @@ public abstract class TeavmCompileTask extends DefaultTask {
     @Optional
     public abstract Property<Boolean> getDebug();
 
-    // todo it must accept FOLDERS in order to properly handle up to date!
-    // source and class dirs extracted from source sets
-    @Input
-    @Optional
-    public abstract ListProperty<String> getSourceSets();
+    // directories with compiled classes and jar files (dependencies)
+    @InputFiles
+    public abstract SetProperty<Directory> getClassPath();
 
-    // additional directories with compiled classes
-    @Input
-    @Optional
-    public abstract SetProperty<Directory> getExtraClassDirs();
+    @InputFiles
+    public abstract ConfigurableFileCollection getDependencies();
 
-    // configurations with dependencies
+    // directories with sources and source jar files
     @Input
     @Optional
-    public abstract SetProperty<String> getConfigurations();
+    public abstract SetProperty<Directory> getSources();
 
-    // extra dependent sources dir
     @Input
     @Optional
-    public abstract SetProperty<Directory> getExtraSourceDirs();
+    public abstract ConfigurableFileCollection getSourceDependencies();
 
     @OutputDirectory
     public abstract DirectoryProperty getTargetDir();
@@ -160,24 +155,15 @@ public abstract class TeavmCompileTask extends DefaultTask {
         workQueue.submit(CompileWorker.class, parameters -> {
             parameters.getDebug().set(getDebug());
 
-            final ClasspathBuilder cp = new ClasspathBuilder(getProject(),
-                    getDebug().get(),
-                    getSourceSets().get(),
-                    getConfigurations().get(),
-                    getExtraClassDirs().get());
+            final List<String> classpath = new ArrayList<>();
+            classpath.addAll(getClassPath().get().stream()
+                    .map(s-> s.getAsFile().getAbsolutePath()).collect(Collectors.toList()));
+            classpath.addAll(getDependencies().getFiles().stream()
+                    .map(File::getAbsolutePath).collect(Collectors.toList()));
 
-            final SourcesBuilder src = new SourcesBuilder(getProject(),
-                    getDebug().get(),
-                    getSourceSets().get(),
-                    // avoid source jars resolution if not required
-                    getSourceFilesCopied().get() ? getConfigurations().get() : Collections.emptySet(),
-                    getExtraSourceDirs().get());
-            src.resolveSources();
-
-//                parameters.getReportDir().set();
-            parameters.getClassPathEntries().set(cp.prepareClassPath());
-            parameters.getSourceDirectories().set(src.getSourceDirs());
-            parameters.getSourceJars().set(src.getSourceJars());
+            parameters.getClassPathEntries().set(classpath);
+            parameters.getSourceDirectories().set(getSources());
+            parameters.getSourceJars().set(getSourceDependencies().getFiles());
             parameters.getTargetDirectory().set(getTargetDir());
             parameters.getCacheDirectory().set(getCacheDir());
 
