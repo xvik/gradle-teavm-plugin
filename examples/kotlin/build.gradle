@@ -1,6 +1,11 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.4.20'
     id 'java-library'
+    id 'ru.vyarus.teavm' version '1.0.0-SNAPSHOT'
+}
+
+ext {
+    teavm = '0.7.0'
 }
 
 repositories {
@@ -10,5 +15,22 @@ repositories {
 dependencies {
     implementation platform('org.jetbrains.kotlin:kotlin-bom')
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+
+    implementation "org.teavm:teavm-classlib:$teavm"
+    implementation "org.teavm:teavm-jso:$teavm"
 }
 
+teavm {
+    version = getProperty('teavm')
+    dev = false
+    debug = false
+    mainClass = 'example.ClientKt'
+}
+
+tasks.register('buildWebapp', Copy) {
+    from('src/main/webapp')
+    from(compileTeavm) {
+        into 'js'
+    }
+    into 'build/webapp'
+}

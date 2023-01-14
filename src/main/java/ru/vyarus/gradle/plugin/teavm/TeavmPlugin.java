@@ -131,7 +131,6 @@ public class TeavmPlugin implements Plugin<Project> {
             if (compileJava != null) {
                 task.dependsOn(compileJava);
             }
-            // todo kotlin and scala support
         });
     }
 }
