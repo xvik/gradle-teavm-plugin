@@ -32,6 +32,8 @@ public class TeavmExtension {
     private boolean dev = false;
     // print plugin-debug information
     private boolean debug = false;
+    // configure resources location inside source directory (so IDEA could build correctly)
+    private boolean mixedResources = false;
     
     // todo option to include resources in sources
 //    sourceSets.main.resources.srcDir 'src/main/java'
@@ -98,6 +100,14 @@ public class TeavmExtension {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public boolean isMixedResources() {
+        return mixedResources;
+    }
+
+    public void setMixedResources(boolean mixedResources) {
+        this.mixedResources = mixedResources;
     }
 
     public String getVersion() {

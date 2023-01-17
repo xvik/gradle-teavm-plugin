@@ -22,7 +22,7 @@ dependencies {
 teavm {
     version = getProperty('teavm')
     dev = false
-    debug = true
+    debug = false
     mainClass = 'example.Client'
 }
 

@@ -5,6 +5,8 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
+import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.language.jvm.tasks.ProcessResources;
 import org.teavm.backend.wasm.render.WasmBinaryVersion;
 import org.teavm.tooling.TeaVMTargetType;
 import org.teavm.vm.TeaVMOptimizationLevel;
@@ -12,7 +14,10 @@ import ru.vyarus.gradle.plugin.teavm.task.TeavmCompileTask;
 import ru.vyarus.gradle.plugin.teavm.util.ClasspathBuilder;
 import ru.vyarus.gradle.plugin.teavm.util.SourcesBuilder;
 
+import java.io.File;
 import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static ru.vyarus.gradle.plugin.teavm.util.FsUtils.dir;
 
@@ -29,6 +34,7 @@ public class TeavmPlugin implements Plugin<Project> {
         registerConfiguration(project, extension);
         registerShortcuts(project);
         configureTask(project, extension);
+        configureResourcesMix(project, extension);
     }
 
     private void registerConfiguration(final Project project, final TeavmExtension extension) {
@@ -130,6 +136,32 @@ public class TeavmPlugin implements Plugin<Project> {
             Task compileJava = project.getTasks().findByPath("classes");
             if (compileJava != null) {
                 task.dependsOn(compileJava);
+            }
+        });
+    }
+
+    private void configureResourcesMix(final Project project, final TeavmExtension extension) {
+        project.afterEvaluate(p -> {
+            if (extension.isMixedResources()) {
+                project.getExtensions().getByType(SourceSetContainer.class).all(sourceSet -> {
+                    if (extension.getSourceSets().contains(sourceSet.getName())) {
+                        // source dirs become resource dirs (for prepareResources task)
+                        final Set<File> files = sourceSet.getAllJava().getSourceDirectories().getFiles();
+                        // source set modification is useless here, instead modifying resources task directly
+                        project.getTasks().withType(ProcessResources.class).configureEach(task -> {
+                            task.from(files, copySpec -> copySpec
+                                    .exclude("**/*.java")
+                                    .exclude("**/*.kt")
+                                    .exclude("**/*.scala"));
+                        });
+                        if (extension.isDebug()) {
+                            System.out.println("Mixed resources mode for source set '" + sourceSet.getName() + "': \n"
+                                    + files.stream().map(file -> "\t" + file.getAbsolutePath()
+                                            .replace(project.getProjectDir().getAbsolutePath() + "/", ""))
+                                    .collect(Collectors.joining("\n")));
+                        }
+                    }
+                });
             }
         });
     }
