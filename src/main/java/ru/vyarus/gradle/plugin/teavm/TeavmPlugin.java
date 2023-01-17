@@ -3,6 +3,7 @@ package ru.vyarus.gradle.plugin.teavm;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.gradle.api.tasks.SourceSetContainer;
@@ -12,10 +13,13 @@ import org.teavm.tooling.TeaVMTargetType;
 import org.teavm.vm.TeaVMOptimizationLevel;
 import ru.vyarus.gradle.plugin.teavm.task.TeavmCompileTask;
 import ru.vyarus.gradle.plugin.teavm.util.ClasspathBuilder;
+import ru.vyarus.gradle.plugin.teavm.util.FsUtils;
 import ru.vyarus.gradle.plugin.teavm.util.SourcesBuilder;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -50,6 +54,29 @@ public class TeavmPlugin implements Plugin<Project> {
             conf.setCanBeResolved(true);
 
             conf.defaultDependencies(dependencies -> {
+                String version = extension.getVersion();
+                boolean detected = false;
+                if (extension.isAutoVersion()) {
+                    for (String cf : extension.getConfigurations()) {
+                        final Optional<ResolvedArtifact> tvm = project.getConfigurations().getByName(cf)
+                                .getResolvedConfiguration().getResolvedArtifacts()
+                                .stream().filter(art -> art.getName().equals("teavm-classlib"))
+                                .findFirst();
+                        if (tvm.isPresent()) {
+                            final Properties props = FsUtils.readMavenProperties(tvm.get().getFile(),
+                                    "META-INF/maven/org.teavm/teavm-classlib/pom.properties");
+                            if (props != null) {
+                                version = props.getProperty("version");
+                                detected = true;
+                            }
+                            break;
+                        }
+                    }
+                    if (!detected) {
+                        project.getLogger().warn("Failed to auto-detect TeaVM version from classpath");
+                    }
+                }
+                System.out.println("TeaVM compiler version: " + version + (detected ? " (auto-detected)" : ""));
                 dependencies.add(project.getDependencies().create("org.teavm:teavm-cli:" + extension.getVersion()));
             });
         });

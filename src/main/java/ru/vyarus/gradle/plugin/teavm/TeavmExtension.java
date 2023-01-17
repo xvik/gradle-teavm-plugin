@@ -34,11 +34,10 @@ public class TeavmExtension {
     private boolean debug = false;
     // configure resources location inside source directory (so IDEA could build correctly)
     private boolean mixedResources = false;
-    
-    // todo option to include resources in sources
-//    sourceSets.main.resources.srcDir 'src/main/java'
-//    sourceSets.main.output.resourcesDir sourceSets.main.java.outputDir
 
+    // would try to guess used teavm version from classpath
+    private boolean autoVersion = true;
+    // version is ignored if auto version enabled
     private String version = "0.7.0";
     private List<String> sourceSets = new ArrayList<>(Arrays.asList("main", "kotlin", "scala"));
     private Set<String> extraClassDirs = new HashSet<>();
@@ -108,6 +107,14 @@ public class TeavmExtension {
 
     public void setMixedResources(boolean mixedResources) {
         this.mixedResources = mixedResources;
+    }
+
+    public boolean isAutoVersion() {
+        return autoVersion;
+    }
+
+    public void setAutoVersion(boolean autoVersion) {
+        this.autoVersion = autoVersion;
     }
 
     public String getVersion() {
