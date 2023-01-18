@@ -15,8 +15,11 @@ import java.util.Set;
 
 /**
  * Teavm plugin extension. These values would be applied as defaults to all registered teavm compile tasks.
- * It is assumed that these values are production values (for compileTeavm task). Debug task aslo use these values,
- * but explicitly enables all debug options.
+ * It is assumed that these values are production values. Dev-related options are duplicated in devOptions section,
+ * which is applied when 'dev = true' flag enabled.
+ * <p>
+ * Extension configured with sourceSets and configurations, while task configuration limited to exact directories
+ * and resolved exact jar files. This way task could correctly handle up-to-date checks.
  * <p>
  * There is a high duplication of parameters declaration: here, in task
  * ({@link ru.vyarus.gradle.plugin.teavm.task.TeavmCompileTask}) and in worker
@@ -28,54 +31,169 @@ import java.util.Set;
  */
 public class TeavmExtension {
 
-    // quick enable for teavm debug options (see dev subclosure)
+    /**
+     * Enables dev mode: use options from {@link #devOptions} configuration.
+     */
     private boolean dev = false;
-    // print plugin-debug information
+    /**
+     * Prints plugin debug information: used paths, dependencies, resolved sources and complete teavm stats.
+     */
     private boolean debug = false;
-    // configure resources location inside source directory (so IDEA could build correctly)
+    /**
+     * Configures processResources task to load resources from java/kotlin/scala directories (ignoring compiled
+     * sources). Useful for flavour when html templates stored near source files.
+     */
     private boolean mixedResources = false;
-
-    // would try to guess used teavm version from classpath
+    /**
+     * Detect teavm version from classpath ({@link #configurations}) in order to use the same version for compilation.
+     * When enabled, {@link #version} option is ignored.
+     */
     private boolean autoVersion = true;
-    // version is ignored if auto version enabled
+    /**
+     * Teavm version to use. Ignored when {@link #autoVersion} enabled.
+     */
     private String version = "0.7.0";
+
+    /**
+     * Source sets to compile js from. By default, java, kotlin and scala supported.
+     */
     private List<String> sourceSets = new ArrayList<>(Arrays.asList("main", "kotlin", "scala"));
-    private Set<String> extraClassDirs = new HashSet<>();
+    /**
+     * Configurations with required dependencies (by default, runtimeClasspath). There is no alternative for direct
+     * dependency jars specification - local jar files could always be configured in configuration.
+     */
     private List<String> configurations = new ArrayList<>(Collections.singletonList("runtimeClasspath"));
-    // dir with sources or with source jars (1st level)
+    /**
+     * Additional directories with compiled classes. Normally, this should not be needed as {@link #sourceSets}
+     * already describe required directories. Could be useful only for specific cases.
+     */
+    private Set<String> extraClassDirs = new HashSet<>();
+    /**
+     * Additional source directories (used only when {@link #sourceFilesCopied} enabled). Normally, this should not
+     * be needed as sources already descibed with {@link #sourceSets} and dependencies sources are resolved
+     * from {@link #configurations}.
+     * All jars contained in configured directories (1st level) would be also added.
+     */
     private Set<String> extraSourceDirs = new HashSet<>();
+    /**
+     * Target compilation directory. By default, "build/teavm".
+     */
     private String targetDir;
+    /**
+     * Teavm cache directory. By default, "build/teavm-cache".
+     */
     private String cacheDir;
 
+    /**
+     * Main application class.
+     */
     private String mainClass;
-    // main (org/teavm/tooling/TeaVMTool.java:448)
-    private String entryPointName;
-    // classes.js, classes.wasm etc (org.teavm.tooling.TeaVMTool#getResolvedTargetFileName)
+    /**
+     * Entry point name (entry static method).
+     */
+    private String entryPointName = "main";
+    /**
+     * Output file name. By default, empty to let teavm automaticlly select file name by compilation target:
+     * classes.js, classes.wasm, etc. ({@link  org.teavm.tooling.TeaVMTool#getResolvedTargetFileName()}).
+     */
     private String targetFileName = "";
+    /**
+     * Compilation target: js by default. Values: JAVASCRIPT, WEBASSEMBLY, C
+     */
     private TeaVMTargetType targetType = TeaVMTargetType.JAVASCRIPT;
+    /**
+     * Target wasm version (only for compilation to WASM). Values: V_0x1
+     */
     private WasmBinaryVersion wasmVersion = WasmBinaryVersion.V_0x1;
 
+    /**
+     * Fail on compilation error.
+     */
     private boolean stopOnErrors = true;
+    /**
+     * Minify files. Should be enabled for production, but disabled for dev.
+     */
     private boolean obfuscated = true;
+    /**
+     * Strict teavm mode.
+     */
     private boolean strict = false;
+    /**
+     * Copy java sources into generated folder so they could be loaded in browser through source maps (see
+     * {@link #sourceMapsGenerated}).
+     */
     private boolean sourceFilesCopied = false;
+    /**
+     * Incremental compilation speeds up compilation, but limits some optimizations and so should be used only
+     * in dev mode.
+     */
     private boolean incremental = false;
+    /**
+     * Generate debug information required for debug server (started from IDE).
+     */
     private boolean debugInformationGenerated = false;
+    /**
+     * Generate source maps. In oder to be able to debug sources in browser enable {@link #sourceFilesCopied}.
+     */
     private boolean sourceMapsGenerated = false;
+    /**
+     * Short file names. ONLY for C target.
+     */
     private boolean shortFileNames = false;
+    /**
+     * Long jmp. ONLY for C target.
+     */
     private boolean longjmpSupported = true;
+    /**
+     * Heap dump. ONLY for C target.
+     */
     private boolean heapDump = false;
+    /**
+     * Fast dependency analysis. Probably could speed up compilation. ONLY for development! (option disables
+     * {@link #optimizationLevel} setting).
+     */
     private boolean fastDependencyAnalysis = false;
     //    private boolean assertionsRemoved = false;
 
+    /**
+     * Top-level names limit. ONLY for JS target.
+     */
     private int maxTopLevelNames = 10000;
+    /**
+     * Minimal heap size (in mb). ONLY for WASM and C targets.
+     */
     private int minHeapSize = 4;
+    /**
+     * Maximum heap size (in mb). ONLY for WASM and C targets.
+     */
     private int maxHeapSize = 128;
+    /**
+     * Output optimization level.
+     * SIMPLE – perform only basic optimizations, remain friendly to the debugger (recommended for development).
+     * ADVANCED – perform more optimizations, sometimes may stuck debugger (recommended for production).
+     * FULL – perform aggressive optimizations, increase compilation time, sometimes can make code even slower
+     * (recommended for WebAssembly).
+     */
     private TeaVMOptimizationLevel optimizationLevel = TeaVMOptimizationLevel.ADVANCED;
+    /**
+     * An array of fully qualified class names. Each class must implement
+     * {@link org.teavm.model.ClassHolderTransformer} interface and have a public no-argument constructor. These
+     * transformers are used to transform ClassHolders, that are SSA-based representation of JVM classes. Transformers
+     * run right after parsing JVM classes and producing SSA representation.
+     */
     private List<String> transformers = null;
+    /**
+     * Properties passed to all TeaVM plugins (usage examples unknown).
+     */
     private Map<String, String> properties = null;
+    /**
+     * Fully qualified class names to preserve (probably, to avoid remove by dependency analysis).
+     */
     private List<String> classesToPreserve;
 
+    /**
+     * Options override for dev mode (enabled with {@link #dev} flag).
+     */
     private Dev devOptions = new Dev();
 
 
@@ -89,7 +207,7 @@ public class TeavmExtension {
         return dev;
     }
 
-    public void setDev(boolean dev) {
+    public void setDev(final boolean dev) {
         this.dev = dev;
     }
 
@@ -97,7 +215,7 @@ public class TeavmExtension {
         return debug;
     }
 
-    public void setDebug(boolean debug) {
+    public void setDebug(final boolean debug) {
         this.debug = debug;
     }
 
@@ -105,7 +223,7 @@ public class TeavmExtension {
         return mixedResources;
     }
 
-    public void setMixedResources(boolean mixedResources) {
+    public void setMixedResources(final boolean mixedResources) {
         this.mixedResources = mixedResources;
     }
 
@@ -113,7 +231,7 @@ public class TeavmExtension {
         return autoVersion;
     }
 
-    public void setAutoVersion(boolean autoVersion) {
+    public void setAutoVersion(final boolean autoVersion) {
         this.autoVersion = autoVersion;
     }
 
@@ -121,15 +239,15 @@ public class TeavmExtension {
         return version;
     }
 
-    public void setVersion(String version) {
+    public void setVersion(final String version) {
         this.version = version;
     }
 
-    public void setTransformers(List<String> transformers) {
+    public void setTransformers(final List<String> transformers) {
         this.transformers = transformers;
     }
 
-    public void setClassesToPreserve(List<String> classesToPreserve) {
+    public void setClassesToPreserve(final List<String> classesToPreserve) {
         this.classesToPreserve = classesToPreserve;
     }
 
@@ -137,7 +255,7 @@ public class TeavmExtension {
         return sourceSets;
     }
 
-    public void setSourceSets(List<String> sourceSets) {
+    public void setSourceSets(final List<String> sourceSets) {
         this.sourceSets = sourceSets;
     }
 
@@ -145,7 +263,7 @@ public class TeavmExtension {
         return extraClassDirs;
     }
 
-    public void setExtraClassDirs(Set<String> extraClassDirs) {
+    public void setExtraClassDirs(final Set<String> extraClassDirs) {
         this.extraClassDirs = extraClassDirs;
     }
 
@@ -153,7 +271,7 @@ public class TeavmExtension {
         return configurations;
     }
 
-    public void setConfigurations(List<String> configurations) {
+    public void setConfigurations(final List<String> configurations) {
         this.configurations = configurations;
     }
 
@@ -161,7 +279,7 @@ public class TeavmExtension {
         return extraSourceDirs;
     }
 
-    public void setExtraSourceDirs(Set<String> extraSourceDirs) {
+    public void setExtraSourceDirs(final Set<String> extraSourceDirs) {
         this.extraSourceDirs = extraSourceDirs;
     }
 
@@ -169,7 +287,7 @@ public class TeavmExtension {
         return targetDir;
     }
 
-    public void setTargetDir(String targetDir) {
+    public void setTargetDir(final String targetDir) {
         this.targetDir = targetDir;
     }
 
@@ -177,7 +295,7 @@ public class TeavmExtension {
         return cacheDir;
     }
 
-    public void setCacheDir(String cacheDir) {
+    public void setCacheDir(final String cacheDir) {
         this.cacheDir = cacheDir;
     }
 
@@ -185,7 +303,7 @@ public class TeavmExtension {
         return mainClass;
     }
 
-    public void setMainClass(String mainClass) {
+    public void setMainClass(final String mainClass) {
         this.mainClass = mainClass;
     }
 
@@ -193,7 +311,7 @@ public class TeavmExtension {
         return entryPointName;
     }
 
-    public void setEntryPointName(String entryPointName) {
+    public void setEntryPointName(final String entryPointName) {
         this.entryPointName = entryPointName;
     }
 
@@ -201,7 +319,7 @@ public class TeavmExtension {
         return targetFileName;
     }
 
-    public void setTargetFileName(String targetFileName) {
+    public void setTargetFileName(final String targetFileName) {
         this.targetFileName = targetFileName;
     }
 
@@ -209,7 +327,7 @@ public class TeavmExtension {
         return targetType;
     }
 
-    public void setTargetType(TeaVMTargetType targetType) {
+    public void setTargetType(final TeaVMTargetType targetType) {
         this.targetType = targetType;
     }
 
@@ -217,7 +335,7 @@ public class TeavmExtension {
         return wasmVersion;
     }
 
-    public void setWasmVersion(WasmBinaryVersion wasmVersion) {
+    public void setWasmVersion(final WasmBinaryVersion wasmVersion) {
         this.wasmVersion = wasmVersion;
     }
 
@@ -225,7 +343,7 @@ public class TeavmExtension {
         return stopOnErrors;
     }
 
-    public void setStopOnErrors(boolean stopOnErrors) {
+    public void setStopOnErrors(final boolean stopOnErrors) {
         this.stopOnErrors = stopOnErrors;
     }
 
@@ -233,7 +351,7 @@ public class TeavmExtension {
         return obfuscated;
     }
 
-    public void setObfuscated(boolean obfuscated) {
+    public void setObfuscated(final boolean obfuscated) {
         this.obfuscated = obfuscated;
     }
 
@@ -241,7 +359,7 @@ public class TeavmExtension {
         return strict;
     }
 
-    public void setStrict(boolean strict) {
+    public void setStrict(final boolean strict) {
         this.strict = strict;
     }
 
@@ -249,7 +367,7 @@ public class TeavmExtension {
         return sourceFilesCopied;
     }
 
-    public void setSourceFilesCopied(boolean sourceFilesCopied) {
+    public void setSourceFilesCopied(final boolean sourceFilesCopied) {
         this.sourceFilesCopied = sourceFilesCopied;
     }
 
@@ -257,7 +375,7 @@ public class TeavmExtension {
         return incremental;
     }
 
-    public void setIncremental(boolean incremental) {
+    public void setIncremental(final boolean incremental) {
         this.incremental = incremental;
     }
 
@@ -265,7 +383,7 @@ public class TeavmExtension {
         return debugInformationGenerated;
     }
 
-    public void setDebugInformationGenerated(boolean debugInformationGenerated) {
+    public void setDebugInformationGenerated(final boolean debugInformationGenerated) {
         this.debugInformationGenerated = debugInformationGenerated;
     }
 
@@ -273,7 +391,7 @@ public class TeavmExtension {
         return sourceMapsGenerated;
     }
 
-    public void setSourceMapsGenerated(boolean sourceMapsGenerated) {
+    public void setSourceMapsGenerated(final boolean sourceMapsGenerated) {
         this.sourceMapsGenerated = sourceMapsGenerated;
     }
 
@@ -281,7 +399,7 @@ public class TeavmExtension {
         return shortFileNames;
     }
 
-    public void setShortFileNames(boolean shortFileNames) {
+    public void setShortFileNames(final boolean shortFileNames) {
         this.shortFileNames = shortFileNames;
     }
 
@@ -289,7 +407,7 @@ public class TeavmExtension {
         return longjmpSupported;
     }
 
-    public void setLongjmpSupported(boolean longjmpSupported) {
+    public void setLongjmpSupported(final boolean longjmpSupported) {
         this.longjmpSupported = longjmpSupported;
     }
 
@@ -297,7 +415,7 @@ public class TeavmExtension {
         return heapDump;
     }
 
-    public void setHeapDump(boolean heapDump) {
+    public void setHeapDump(final boolean heapDump) {
         this.heapDump = heapDump;
     }
 
@@ -305,7 +423,7 @@ public class TeavmExtension {
         return fastDependencyAnalysis;
     }
 
-    public void setFastDependencyAnalysis(boolean fastDependencyAnalysis) {
+    public void setFastDependencyAnalysis(final boolean fastDependencyAnalysis) {
         this.fastDependencyAnalysis = fastDependencyAnalysis;
     }
 
@@ -313,7 +431,7 @@ public class TeavmExtension {
         return maxTopLevelNames;
     }
 
-    public void setMaxTopLevelNames(int maxTopLevelNames) {
+    public void setMaxTopLevelNames(final int maxTopLevelNames) {
         this.maxTopLevelNames = maxTopLevelNames;
     }
 
@@ -321,7 +439,7 @@ public class TeavmExtension {
         return minHeapSize;
     }
 
-    public void setMinHeapSize(int minHeapSize) {
+    public void setMinHeapSize(final int minHeapSize) {
         this.minHeapSize = minHeapSize;
     }
 
@@ -329,7 +447,7 @@ public class TeavmExtension {
         return maxHeapSize;
     }
 
-    public void setMaxHeapSize(int maxHeapSize) {
+    public void setMaxHeapSize(final int maxHeapSize) {
         this.maxHeapSize = maxHeapSize;
     }
 
@@ -337,7 +455,7 @@ public class TeavmExtension {
         return optimizationLevel;
     }
 
-    public void setOptimizationLevel(TeaVMOptimizationLevel optimizationLevel) {
+    public void setOptimizationLevel(final TeaVMOptimizationLevel optimizationLevel) {
         this.optimizationLevel = optimizationLevel;
     }
 
@@ -345,7 +463,7 @@ public class TeavmExtension {
         return transformers;
     }
 
-    public void setTransformers(String... transformers) {
+    public void setTransformers(final String... transformers) {
         this.transformers = Arrays.asList(transformers);
     }
 
@@ -353,7 +471,7 @@ public class TeavmExtension {
         return properties;
     }
 
-    public void setProperties(Map<String, String> properties) {
+    public void setProperties(final Map<String, String> properties) {
         this.properties = properties;
     }
 
@@ -361,7 +479,7 @@ public class TeavmExtension {
         return classesToPreserve;
     }
 
-    public void setClassesToPreserve(String... classesToPreserve) {
+    public void setClassesToPreserve(final String... classesToPreserve) {
         this.classesToPreserve = Arrays.asList(classesToPreserve);
     }
 
@@ -369,10 +487,13 @@ public class TeavmExtension {
         return devOptions;
     }
 
-    public void setDevOptions(Dev devOptions) {
+    public void setDevOptions(final Dev devOptions) {
         this.devOptions = devOptions;
     }
 
+    /**
+     * Options override for dev mode.
+     */
     public static class Dev {
         private TeaVMOptimizationLevel optimizationLevel = TeaVMOptimizationLevel.SIMPLE;
         private boolean obfuscated = false;
@@ -387,7 +508,7 @@ public class TeavmExtension {
             return optimizationLevel;
         }
 
-        public void setOptimizationLevel(TeaVMOptimizationLevel optimizationLevel) {
+        public void setOptimizationLevel(final TeaVMOptimizationLevel optimizationLevel) {
             this.optimizationLevel = optimizationLevel;
         }
 
@@ -395,7 +516,7 @@ public class TeavmExtension {
             return obfuscated;
         }
 
-        public void setObfuscated(boolean obfuscated) {
+        public void setObfuscated(final boolean obfuscated) {
             this.obfuscated = obfuscated;
         }
 
@@ -403,7 +524,7 @@ public class TeavmExtension {
             return strict;
         }
 
-        public void setStrict(boolean strict) {
+        public void setStrict(final boolean strict) {
             this.strict = strict;
         }
 
@@ -411,7 +532,7 @@ public class TeavmExtension {
             return sourceFilesCopied;
         }
 
-        public void setSourceFilesCopied(boolean sourceFilesCopied) {
+        public void setSourceFilesCopied(final boolean sourceFilesCopied) {
             this.sourceFilesCopied = sourceFilesCopied;
         }
 
@@ -419,7 +540,7 @@ public class TeavmExtension {
             return incremental;
         }
 
-        public void setIncremental(boolean incremental) {
+        public void setIncremental(final boolean incremental) {
             this.incremental = incremental;
         }
 
@@ -427,7 +548,7 @@ public class TeavmExtension {
             return debugInformationGenerated;
         }
 
-        public void setDebugInformationGenerated(boolean debugInformationGenerated) {
+        public void setDebugInformationGenerated(final boolean debugInformationGenerated) {
             this.debugInformationGenerated = debugInformationGenerated;
         }
 
@@ -435,7 +556,7 @@ public class TeavmExtension {
             return sourceMapsGenerated;
         }
 
-        public void setSourceMapsGenerated(boolean sourceMapsGenerated) {
+        public void setSourceMapsGenerated(final boolean sourceMapsGenerated) {
             this.sourceMapsGenerated = sourceMapsGenerated;
         }
 
@@ -443,7 +564,7 @@ public class TeavmExtension {
             return fastDependencyAnalysis;
         }
 
-        public void setFastDependencyAnalysis(boolean fastDependencyAnalysis) {
+        public void setFastDependencyAnalysis(final boolean fastDependencyAnalysis) {
             this.fastDependencyAnalysis = fastDependencyAnalysis;
         }
     }

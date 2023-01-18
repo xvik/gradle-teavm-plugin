@@ -18,6 +18,7 @@ import ru.vyarus.gradle.plugin.teavm.util.SourcesBuilder;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
@@ -26,14 +27,34 @@ import java.util.stream.Collectors;
 import static ru.vyarus.gradle.plugin.teavm.util.FsUtils.dir;
 
 /**
- * teavm plugin.
+ * TeaVM plugin. Compiles java/kotlin/scala sources into javascript.
+ * <p>
+ * Plugin registers 'teavm' extension. Extension declares source sets to use (by default, main, kotlin and scala).
+ * Additional classes and source directories could be configured with special properties (also, default source sets
+ * could be flushed to rely only on custom locations).
+ * <p>
+ * Extension configures production compilation. For development, some options are duplicate in 'devOptions':
+ * when `dev = true` these options override default values (dev mode).
+ * <p>
+ * Plugin could use any teavm version: by default, version would be auto-detected from user classpath
+ * (by teavm-classlib jar). If jar not found, then `version` setting would be used. Auto-detection could be
+ * disabled with 'autoVersion = false'.
+ * <p>
+ * IMPORTANT: plugin is compiled with exact teavm version and so only compatible teavm version could be used instead.
+ * Also, new options appeared in new teavm would be impossible to use (until plugin would be compiled with new version).
+ * <p>
+ * NOTE: dev and debug servers are only available in IDEA plugin
+ * <p>
+ * Debug extension option could be used to print all paths resolved by plugin (plugin debugging).
+ * <p>
+ * Special "mixedResources" mode allows using static resources like html files (for flavour) inside source directories.
  *
  * @author Vyacheslav Rusakov
  * @since 27.12.2022
  */
 public class TeavmPlugin implements Plugin<Project> {
     @Override
-    public void apply(Project project) {
+    public void apply(final Project project) {
         final TeavmExtension extension = project.getExtensions().create("teavm", TeavmExtension.class, project);
         registerConfiguration(project, extension);
         registerShortcuts(project);
@@ -41,6 +62,13 @@ public class TeavmPlugin implements Plugin<Project> {
         configureResourcesMix(project, extension);
     }
 
+    /**
+     * "teavm" configuration used for compiler classpath resolution. Version could be detected from user classpath
+     * or configured in extension.
+     *
+     * @param project   project
+     * @param extension extension
+     */
     private void registerConfiguration(final Project project, final TeavmExtension extension) {
         // internal configuration used for cli dependency resolution
         project.getConfigurations().create("teavm", conf -> {
@@ -57,23 +85,12 @@ public class TeavmPlugin implements Plugin<Project> {
                 String version = extension.getVersion();
                 boolean detected = false;
                 if (extension.isAutoVersion()) {
-                    for (String cf : extension.getConfigurations()) {
-                        final Optional<ResolvedArtifact> tvm = project.getConfigurations().getByName(cf)
-                                .getResolvedConfiguration().getResolvedArtifacts()
-                                .stream().filter(art -> art.getName().equals("teavm-classlib"))
-                                .findFirst();
-                        if (tvm.isPresent()) {
-                            final Properties props = FsUtils.readMavenProperties(tvm.get().getFile(),
-                                    "META-INF/maven/org.teavm/teavm-classlib/pom.properties");
-                            if (props != null) {
-                                version = props.getProperty("version");
-                                detected = true;
-                            }
-                            break;
-                        }
-                    }
-                    if (!detected) {
+                    String auto = autoDetectVersion(project, extension.getConfigurations());
+                    if (auto == null) {
                         project.getLogger().warn("Failed to auto-detect TeaVM version from classpath");
+                    } else {
+                        version = auto;
+                        detected = true;
                     }
                 }
                 System.out.println("TeaVM compiler version: " + version + (detected ? " (auto-detected)" : ""));
@@ -99,6 +116,13 @@ public class TeavmPlugin implements Plugin<Project> {
         Arrays.asList(TeaVMOptimizationLevel.values()).forEach(type -> extraProps.set(type.name(), type));
     }
 
+    /**
+     * Configures "compileTeavm" task with prod or dev options. Task would depend on "classes" task to compile
+     * and process resources before teavm execution.
+     *
+     * @param project   project
+     * @param extension extension
+     */
     private void configureTask(final Project project, final TeavmExtension extension) {
         project.getTasks().register("compileTeavm", TeavmCompileTask.class);
 
@@ -167,6 +191,14 @@ public class TeavmPlugin implements Plugin<Project> {
         });
     }
 
+    /**
+     * As configuration performed after project evaluation, it is too late to re-configure source sets. Instead,
+     * processResources task is directly configured (to copy resources from source directories ignoring java, kotlin
+     * and scala source files).
+     *
+     * @param project project
+     * @param extension extension
+     */
     private void configureResourcesMix(final Project project, final TeavmExtension extension) {
         project.afterEvaluate(p -> {
             if (extension.isMixedResources()) {
@@ -191,5 +223,24 @@ public class TeavmPlugin implements Plugin<Project> {
                 });
             }
         });
+    }
+
+    private String autoDetectVersion(final Project project, final List<String> configurations) {
+        String version = null;
+        for (String cf : configurations) {
+            final Optional<ResolvedArtifact> tvm = project.getConfigurations().getByName(cf)
+                    .getResolvedConfiguration().getResolvedArtifacts()
+                    .stream().filter(art -> art.getName().equals("teavm-classlib"))
+                    .findFirst();
+            if (tvm.isPresent()) {
+                final Properties props = FsUtils.readMavenProperties(tvm.get().getFile(),
+                        "META-INF/maven/org.teavm/teavm-classlib/pom.properties");
+                if (props != null) {
+                    version = props.getProperty("version");
+                }
+                break;
+            }
+        }
+        return version;
     }
 }
