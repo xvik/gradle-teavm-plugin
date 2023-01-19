@@ -13,10 +13,11 @@ plugins {
     id "pl.droidsonroids.jacoco.testkit" version "1.0.9"
 }
 
-sourceCompatibility = 1.8
+// teavm compiled for 11
+sourceCompatibility = "11"
 
 wrapper {
-    gradleVersion = '6.9'
+    gradleVersion = '7.6'
 }
 
 repositories { mavenLocal(); mavenCentral(); gradlePluginPortal() }
@@ -27,9 +28,7 @@ dependencies {
     // with different version
     implementation 'org.teavm:teavm-cli:0.7.0'
 
-    testImplementation('org.spockframework:spock-core:2.0-groovy-2.5') {
-        exclude group: 'org.codehaus.groovy'
-    }
+    testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'
 }
 
 group = 'ru.vyarus'
