@@ -22,7 +22,7 @@ wrapper {
 
 repositories { mavenLocal(); mavenCentral(); gradlePluginPortal() }
 dependencies {
-    compileOnly 'com.github.spotbugs:spotbugs-annotations:3.1.2'
+    compileOnly 'com.github.spotbugs:spotbugs-annotations:4.7.3'
 
     // compiled with this version, and this version used at runtime to support enums, but compiler could be executed
     // with different version
