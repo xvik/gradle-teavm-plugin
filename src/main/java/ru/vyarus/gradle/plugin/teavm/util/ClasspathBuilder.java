@@ -12,9 +12,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * Classpath jars and directories extractor.
+ *
  * @author Vyacheslav Rusakov
  * @since 08.01.2023
  */
+@SuppressWarnings("PMD.SystemPrintln")
 public class ClasspathBuilder {
 
     private final Project project;

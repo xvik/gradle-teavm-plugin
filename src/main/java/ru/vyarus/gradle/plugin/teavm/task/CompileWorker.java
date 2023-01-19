@@ -19,9 +19,17 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 /**
+ * TeaVM compilation worker. Worker used to execute teavm inside custom classpath (dynamic teavm version selection).
+ * Worker might be executed in different jvm (gradle daemon) and so there are no direct communication between
+ * worker and plugin (only parameters could be passed into worker). Special file used to indicate compilation fail:
+ * if worker creates file, task would throw an exception.
+ * <p>
+ * Logging is not supported inside worker so everything is logged into system out (user will see it).
+ *
  * @author Vyacheslav Rusakov
  * @since 06.01.2023
  */
+@SuppressWarnings({"PMD.SystemPrintln", "PMD.AvoidPrintStackTrace"})
 public abstract class CompileWorker implements WorkAction<CompileParameters> {
 
     @Override
@@ -35,13 +43,15 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
         try {
             run(build);
         } catch (Exception ex) {
+            // no way to show exception otherwise
             System.err.println("Unexpected compilation error");
             ex.printStackTrace();
             indicateFail();
         }
     }
 
-    private void configure(BuildStrategy build) {
+    @SuppressWarnings("checkstyle:ExecutableStatementCount")
+    private void configure(final BuildStrategy build) {
         // settings applied in the same order as teavm gradle plugin to simplify future comparisons
         build.setClassPathEntries(getParameters().getClassPathEntries().get());
         build.setObfuscated(getParameters().getObfuscated().get());
@@ -61,7 +71,7 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
         }
 
         if (getParameters().getProperties().isPresent()) {
-            Properties res = new Properties();
+            final Properties res = new Properties();
             res.putAll(getParameters().getProperties().get());
             build.setProperties(res);
         }
@@ -71,7 +81,7 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
         build.setMinHeapSize(getParameters().getMinHeapSize().get() * 1024 * 1024);
         build.setMaxHeapSize(getParameters().getMaxHeapSize().get() * 1024 * 1024);
         build.setShortFileNames(getParameters().getShortFileNames().get());
-//        build.setAssertionsRemoved(assertionsRemoved);
+        //build.setAssertionsRemoved(assertionsRemoved);
 
 
         build.setMainClass(getParameters().getMainClass().get());
@@ -91,9 +101,9 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
     }
 
     private void run(final BuildStrategy build) throws Exception {
-        long watch = System.currentTimeMillis();
+        final long watch = System.currentTimeMillis();
         final BuildResult result = build.build();
-        long time = System.currentTimeMillis() - watch;
+        final long time = System.currentTimeMillis() - watch;
 
         if (result.getProblems() != null) {
             TeaVMProblemRenderer.describeProblems(result.getCallGraph(), result.getProblems(), new LogDelegate());
@@ -111,7 +121,7 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
                         .map(s -> "\t" + s).collect(Collectors.joining("\n")));
 
                 System.out.println("Generated files: \n" + result.getGeneratedFiles().stream()
-                        .map(s -> "\t"+ s.replace(getParameters().getTargetDirectory().get().getAsFile()
+                        .map(s -> "\t" + s.replace(getParameters().getTargetDirectory().get().getAsFile()
                                 .getAbsolutePath() + File.separator, "") + " ("
                                 + FileUtils.byteCountToDisplaySize(new File(s).length()) + ")")
                         .collect(Collectors.joining("\n ")));
@@ -130,12 +140,16 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
         }
     }
 
+    /**
+     * TeaVM progress indicator.
+     */
     public static class LogListener implements TeaVMProgressListener {
         private double target = 1.0;
         private TeaVMPhase currentPhase;
 
         @Override
-        public TeaVMProgressFeedback phaseStarted(TeaVMPhase phase, int maxSteps) {
+        public TeaVMProgressFeedback phaseStarted(final TeaVMPhase phase, final int maxSteps) {
+            // \r for overriding previous line
             System.out.printf("\rTeaVM: Progress, phase: %s started, targeted steps: %s", phase, maxSteps);
             target = maxSteps;
             currentPhase = phase;
@@ -143,17 +157,19 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
         }
 
         @Override
-        public TeaVMProgressFeedback progressReached(int stepsReached) {
-            System.out.printf("\rTeaVM: %s; progress reached: %s of %s -- %s%%", currentPhase, stepsReached, (int) target,
-                    (int) (Math.round(stepsReached / target * 100.0)));
+        public TeaVMProgressFeedback progressReached(final int stepsReached) {
+            System.out.printf("\rTeaVM: %s; progress reached: %s of %s -- %s%%", currentPhase, stepsReached,
+                    (int) target, (int) (Math.round(stepsReached / target * 100.0)));
             return TeaVMProgressFeedback.CONTINUE;
         }
     }
 
-    // gradle workers does not support loggers!
+    /**
+     * TeaVM logs delegate. Worker does not support loggers so system out used instead.
+     */
     public static class LogDelegate implements TeaVMToolLog {
 
-        // \r required to remove last LogListener line from output
+        // \r required to remove last LogListener line from output (after progress listener)
 
         @Override
         public void info(final String s) {
@@ -161,40 +177,40 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
         }
 
         @Override
-        public void debug(String s) {
+        public void info(final String s, final Throwable throwable) {
+            System.out.println("\r" + s);
+            throwable.printStackTrace();
+        }
+
+        @Override
+        public void debug(final String s) {
             System.out.println("\r" + s);
         }
 
         @Override
-        public void warning(String s) {
+        public void debug(final String s, final Throwable throwable) {
+            System.out.println("\r" + s);
+            throwable.printStackTrace();
+        }
+
+        @Override
+        public void warning(final String s) {
             System.out.println("\rWARNING: " + s);
         }
 
         @Override
-        public void error(String s) {
+        public void warning(final String s, final Throwable throwable) {
+            System.out.println("\rWARNING: " + s);
+            throwable.printStackTrace();
+        }
+
+        @Override
+        public void error(final String s) {
             System.out.println("\rERROR: " + s);
         }
 
         @Override
-        public void info(String s, Throwable throwable) {
-            System.out.println("\r" + s);
-            throwable.printStackTrace();
-        }
-
-        @Override
-        public void debug(String s, Throwable throwable) {
-            System.out.println("\r" + s);
-            throwable.printStackTrace();
-        }
-
-        @Override
-        public void warning(String s, Throwable throwable) {
-            System.out.println("\rWARNING: " + s);
-            throwable.printStackTrace();
-        }
-
-        @Override
-        public void error(String s, Throwable throwable) {
+        public void error(final String s, final Throwable throwable) {
             System.err.println("\rERROR: " + s);
             throwable.printStackTrace();
         }

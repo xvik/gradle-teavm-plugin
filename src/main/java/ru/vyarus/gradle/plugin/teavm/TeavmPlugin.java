@@ -1,5 +1,6 @@
 package ru.vyarus.gradle.plugin.teavm;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -52,6 +53,8 @@ import static ru.vyarus.gradle.plugin.teavm.util.FsUtils.dir;
  * @author Vyacheslav Rusakov
  * @since 27.12.2022
  */
+@SuppressWarnings("PMD.SystemPrintln")
+@SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
 public class TeavmPlugin implements Plugin<Project> {
     @Override
     public void apply(final Project project) {
@@ -85,7 +88,7 @@ public class TeavmPlugin implements Plugin<Project> {
                 String version = extension.getVersion();
                 boolean detected = false;
                 if (extension.isAutoVersion()) {
-                    String auto = autoDetectVersion(project, extension.getConfigurations());
+                    final String auto = autoDetectVersion(project, extension.getConfigurations());
                     if (auto == null) {
                         project.getLogger().warn("Failed to auto-detect TeaVM version from classpath");
                     } else {
@@ -127,8 +130,6 @@ public class TeavmPlugin implements Plugin<Project> {
         project.getTasks().register("compileTeavm", TeavmCompileTask.class);
 
         project.getTasks().withType(TeavmCompileTask.class).configureEach(task -> {
-            final TeavmExtension.Dev dev = extension.isDev() ? extension.getDevOptions() : null;
-
             task.getDebug().set(extension.isDebug());
 
             final ClasspathBuilder cp = new ClasspathBuilder(project,
@@ -160,35 +161,34 @@ public class TeavmPlugin implements Plugin<Project> {
             task.getWasmVersion().convention(extension.getWasmVersion());
 
             task.getStopOnErrors().convention(extension.isStopOnErrors());
-            task.getObfuscated().convention(dev == null ? extension.isObfuscated() : dev.isObfuscated());
-            task.getStrict().convention(dev == null ? extension.isStrict() : dev.isStrict());
-            task.getSourceFilesCopied().convention(
-                    dev == null ? extension.isSourceFilesCopied() : dev.isSourceFilesCopied());
-            task.getIncremental().convention(dev == null ? extension.isIncremental() : dev.isIncremental());
-            task.getDebugInformationGenerated().convention(
-                    dev == null ? extension.isDebugInformationGenerated() : dev.isDebugInformationGenerated());
-            task.getSourceMapsGenerated().convention(
-                    dev == null ? extension.isSourceMapsGenerated() : dev.isSourceMapsGenerated());
-            task.getShortFileNames().convention(extension.isShortFileNames());
-            task.getLongjmpSupported().convention(extension.isLongjmpSupported());
-            task.getHeapDump().convention(extension.isHeapDump());
-            task.getFastDependencyAnalysis().convention(
-                    dev == null ? extension.isFastDependencyAnalysis() : dev.isFastDependencyAnalysis());
+            configureDevOptions(task, extension.isDev() ? extension.getDevOptions() : extension);
 
             task.getMaxTopLevelNames().convention(extension.getMaxTopLevelNames());
             task.getMinHeapSize().convention(extension.getMinHeapSize());
             task.getMaxHeapSize().convention(extension.getMaxHeapSize());
-            task.getOptimizationLevel().convention(
-                    dev == null ? extension.getOptimizationLevel() : dev.getOptimizationLevel());
             task.getTransformers().convention(extension.getTransformers());
             task.getProperties().convention(extension.getProperties());
             task.getClassesToPreserve().convention(extension.getClassesToPreserve());
 
-            Task compileJava = project.getTasks().findByPath("classes");
+            final Task compileJava = project.getTasks().findByPath("classes");
             if (compileJava != null) {
                 task.dependsOn(compileJava);
             }
         });
+    }
+
+    private void configureDevOptions(final TeavmCompileTask task, final DevOptions options) {
+        task.getObfuscated().convention(options.isObfuscated());
+        task.getStrict().convention(options.isStrict());
+        task.getSourceFilesCopied().convention(options.isSourceFilesCopied());
+        task.getIncremental().convention(options.isIncremental());
+        task.getDebugInformationGenerated().convention(options.isDebugInformationGenerated());
+        task.getSourceMapsGenerated().convention(options.isSourceMapsGenerated());
+        task.getShortFileNames().convention(options.isShortFileNames());
+        task.getLongjmpSupported().convention(options.isLongjmpSupported());
+        task.getHeapDump().convention(options.isHeapDump());
+        task.getFastDependencyAnalysis().convention(options.isFastDependencyAnalysis());
+        task.getOptimizationLevel().convention(options.getOptimizationLevel());
     }
 
     /**
@@ -196,7 +196,7 @@ public class TeavmPlugin implements Plugin<Project> {
      * processResources task is directly configured (to copy resources from source directories ignoring java, kotlin
      * and scala source files).
      *
-     * @param project project
+     * @param project   project
      * @param extension extension
      */
     private void configureResourcesMix(final Project project, final TeavmExtension extension) {
@@ -207,12 +207,11 @@ public class TeavmPlugin implements Plugin<Project> {
                         // source dirs become resource dirs (for prepareResources task)
                         final Set<File> files = sourceSet.getAllJava().getSourceDirectories().getFiles();
                         // source set modification is useless here, instead modifying resources task directly
-                        project.getTasks().withType(ProcessResources.class).configureEach(task -> {
-                            task.from(files, copySpec -> copySpec
-                                    .exclude("**/*.java")
-                                    .exclude("**/*.kt")
-                                    .exclude("**/*.scala"));
-                        });
+                        project.getTasks().withType(ProcessResources.class).configureEach(task ->
+                                task.from(files, copySpec -> copySpec
+                                        .exclude("**/*.java")
+                                        .exclude("**/*.kt")
+                                        .exclude("**/*.scala")));
                         if (extension.isDebug()) {
                             System.out.println("Mixed resources mode for source set '" + sourceSet.getName() + "': \n"
                                     + files.stream().map(file -> "\t" + file.getAbsolutePath()
@@ -230,7 +229,7 @@ public class TeavmPlugin implements Plugin<Project> {
         for (String cf : configurations) {
             final Optional<ResolvedArtifact> tvm = project.getConfigurations().getByName(cf)
                     .getResolvedConfiguration().getResolvedArtifacts()
-                    .stream().filter(art -> art.getName().equals("teavm-classlib"))
+                    .stream().filter(art -> "teavm-classlib".equals(art.getName()))
                     .findFirst();
             if (tvm.isPresent()) {
                 final Properties props = FsUtils.readMavenProperties(tvm.get().getFile(),

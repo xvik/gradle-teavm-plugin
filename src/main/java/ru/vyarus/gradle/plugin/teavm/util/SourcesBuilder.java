@@ -12,14 +12,21 @@ import org.gradle.language.base.artifact.SourcesArtifact;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * Source jars and directories extractor. Source dirs extracted from source sets and some dirs might be manually
+ * configured. Source jars resolved from jars in classpath configuration. Also, source jars might be
+ * found in manually configured directories.
+ *
  * @author Vyacheslav Rusakov
  * @since 08.01.2023
  */
+@SuppressWarnings("PMD.SystemPrintln")
 public class SourcesBuilder {
 
     private final Project project;
@@ -46,23 +53,7 @@ public class SourcesBuilder {
     public void resolveSources() {
         // source sets
         if (!sourceSets.isEmpty()) {
-            project.getExtensions().getByType(SourceSetContainer.class).all(sourceSet -> {
-                if (sourceSets.contains(sourceSet.getName())) {
-                    final List<Directory> sources = new ArrayList<>();
-                    for (File file : sourceSet.getAllSource().getSourceDirectories().getFiles()) {
-                        sources.add(project.getLayout().getProjectDirectory().dir(file.getAbsolutePath()));
-                    }
-                    if (!sources.isEmpty()) {
-                        if (debug) {
-                            System.out.println("'" + sourceSet.getName() + "' source set sources: \n" + sources.stream()
-                                    .map(s -> "\t" + s.getAsFile().getAbsolutePath()
-                                            .replace(project.getProjectDir().getAbsolutePath() + "/", ""))
-                                    .collect(Collectors.joining("\n")));
-                        }
-                        sourceDirs.addAll(sources);
-                    }
-                }
-            });
+            resolveSourceSetSources();
         }
 
         // extra dirs
@@ -74,25 +65,54 @@ public class SourcesBuilder {
         }
         for (String dir : extraSourceDirs) {
             sourceDirs.add(project.getLayout().getProjectDirectory().dir(dir));
-            final List<File> jars = new ArrayList<>();
             // look only for root level jars
             final File dirFile = project.file(dir);
-            for (File jar : dirFile.listFiles(file -> file.getName().toLowerCase().endsWith(".jar"))) {
-                jars.add(jar);
-            }
-            if (!jars.isEmpty()) {
+            final File[] jars = dirFile.listFiles(file -> file.getName().toLowerCase().endsWith(".jar"));
+            if (jars != null && jars.length > 0) {
                 if (debug) {
                     System.out.println("Source jars from extra directory '" + dirFile.getAbsolutePath()
-                            .replace(project.getRootDir().getAbsolutePath() + "/", "") + "': \n" + jars.stream()
+                            .replace(project.getRootDir().getAbsolutePath() + "/", "") + "': \n" + Arrays.stream(jars)
                             .map(s -> "\t" + String.format("%-50s  %s", s.getName(), s
                                     .getAbsolutePath().replace(dirFile.getAbsolutePath() + "/", "")))
                             .collect(Collectors.joining("\n")));
                 }
-                sourceJars.addAll(jars);
+                Collections.addAll(this.sourceJars, jars);
             }
         }
 
         // resolve sources for dependencies in configurations
+        resolveDependencySources();
+    }
+
+    public List<Directory> getSourceDirs() {
+        return sourceDirs;
+    }
+
+    public void dependencies(final ConfigurableFileCollection files) {
+        files.from(sourceJars);
+    }
+
+    private void resolveSourceSetSources() {
+        project.getExtensions().getByType(SourceSetContainer.class).all(sourceSet -> {
+            if (sourceSets.contains(sourceSet.getName())) {
+                final List<Directory> sources = new ArrayList<>();
+                for (File file : sourceSet.getAllSource().getSourceDirectories().getFiles()) {
+                    sources.add(project.getLayout().getProjectDirectory().dir(file.getAbsolutePath()));
+                }
+                if (!sources.isEmpty()) {
+                    if (debug) {
+                        System.out.println("'" + sourceSet.getName() + "' source set sources: \n" + sources.stream()
+                                .map(s -> "\t" + s.getAsFile().getAbsolutePath()
+                                        .replace(project.getProjectDir().getAbsolutePath() + "/", ""))
+                                .collect(Collectors.joining("\n")));
+                    }
+                    sourceDirs.addAll(sources);
+                }
+            }
+        });
+    }
+
+    private void resolveDependencySources() {
         for (String config : configurations) {
             final Set<ResolvedArtifact> allDeps = project.getConfigurations().getByName(config)
                     .getResolvedConfiguration().getResolvedArtifacts();
@@ -119,13 +139,5 @@ public class SourcesBuilder {
             }
             sourceJars.addAll(sourceArtifacts);
         }
-    }
-
-    public List<Directory> getSourceDirs() {
-        return sourceDirs;
-    }
-
-    public void dependencies(ConfigurableFileCollection files) {
-        files.from(sourceJars);
     }
 }

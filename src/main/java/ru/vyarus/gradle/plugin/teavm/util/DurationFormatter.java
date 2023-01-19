@@ -8,75 +8,72 @@ import java.math.BigDecimal;
  * Copy of gradle's internal {@link org.gradle.internal.time.TimeFormatting} class, which become internal in
  * gradle 4.2 and broke compatibility.
  * <p>
- * Used to pretty print elapsed tile in human readable form.
+ * Used to pretty print elapsed tile in human-readable form.
  *
  * @author Vyacheslav Rusakov
  * @since 21.09.2017
  */
 public final class DurationFormatter {
+
+    private static final long MILLIS_PER_SECOND = 1000;
+    private static final long MILLIS_PER_MINUTE = 60_000;
+    private static final long MILLIS_PER_HOUR = 3_600_000;
+    private static final long MILLIS_PER_DAY = 86_400_000;
+
     private DurationFormatter() {
     }
 
     /**
      * @param duration duration in milliseconds
-     * @return human readable (short) duration
+     * @return human-readable (short) duration
      */
-    public static String format(long duration) {
-        if (duration == 0L) {
+    @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
+    public static String format(final long duration) {
+        long remain = duration;
+        if (remain == 0L) {
             return "0ms";
         }
 
-
-        StringBuilder result = new StringBuilder();
-        long days = duration / MILLIS_PER_DAY;
-        duration %= MILLIS_PER_DAY;
+        final StringBuilder result = new StringBuilder();
+        final long days = remain / MILLIS_PER_DAY;
+        remain %= MILLIS_PER_DAY;
         if (days > 0L) {
             append(result, days, "d");
         }
 
-
-        long hours = duration / MILLIS_PER_HOUR;
-        duration %= MILLIS_PER_HOUR;
+        final long hours = remain / MILLIS_PER_HOUR;
+        remain %= MILLIS_PER_HOUR;
         if (hours > 0L) {
             append(result, hours, "h");
         }
 
-
-        long minutes = duration / MILLIS_PER_MINUTE;
-        duration %= MILLIS_PER_MINUTE;
+        final long minutes = remain / MILLIS_PER_MINUTE;
+        remain %= MILLIS_PER_MINUTE;
         if (minutes > 0L) {
             append(result, minutes, "m");
         }
 
-
         boolean secs = false;
-        if (duration >= MILLIS_PER_SECOND) {
+        if (remain >= MILLIS_PER_SECOND) {
             // if only secs, show rounded value, otherwise get rid of ms
-            int secondsScale = result.length() == 0 ? 2 : 0;
-            append(result, BigDecimal.valueOf(duration).divide(BigDecimal.valueOf(MILLIS_PER_SECOND)).setScale(secondsScale, 4).stripTrailingZeros().toPlainString(), "s");
+            final int secondsScale = result.length() == 0 ? 2 : 0;
+            append(result, BigDecimal.valueOf(remain).divide(BigDecimal.valueOf(MILLIS_PER_SECOND))
+                    .setScale(secondsScale, 4).stripTrailingZeros().toPlainString(), "s");
             secs = true;
-            duration %= MILLIS_PER_SECOND;
+            remain %= MILLIS_PER_SECOND;
         }
 
-
-        if (!secs && duration > 0) {
-            result.append(StringGroovyMethods.plus(duration, "ms"));
+        if (!secs && remain > 0) {
+            result.append(StringGroovyMethods.plus(remain, "ms"));
         }
 
         return result.toString();
     }
 
-    private static void append(StringBuilder builder, Object num, String what) {
+    private static void append(final StringBuilder builder, final Object num, final String what) {
         if (builder.length() > 0) {
-            builder.append(" ");
+            builder.append(' ');
         }
-
-        builder.append(num);
-        builder.append(what);
+        builder.append(num).append(what);
     }
-
-    private static final long MILLIS_PER_SECOND = 1000;
-    private static final long MILLIS_PER_MINUTE = 60000;
-    private static final long MILLIS_PER_HOUR = 3600000;
-    private static final long MILLIS_PER_DAY = 86400000;
 }

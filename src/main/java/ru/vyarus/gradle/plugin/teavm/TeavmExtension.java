@@ -29,7 +29,9 @@ import java.util.Set;
  * @author Vyacheslav Rusakov
  * @since 27.12.2022
  */
-public class TeavmExtension {
+@SuppressWarnings({"checkstyle:ExplicitInitialization", "PMD.RedundantFieldInitializer", "PMD.ExcessivePublicCount",
+        "PMD.TooManyFields"})
+public class TeavmExtension extends DevOptions {
 
     /**
      * Enables dev mode: use options from {@link #devOptions} configuration.
@@ -69,9 +71,9 @@ public class TeavmExtension {
      */
     private Set<String> extraClassDirs = new HashSet<>();
     /**
-     * Additional source directories (used only when {@link #sourceFilesCopied} enabled). Normally, this should not
-     * be needed as sources already descibed with {@link #sourceSets} and dependencies sources are resolved
-     * from {@link #configurations}.
+     * Additional source directories (used only when {@link DevOptions#isSourceFilesCopied()} enabled). Normally,
+     * this should not be needed as sources already descibed with {@link #sourceSets} and dependencies sources are
+     * resolved from {@link #configurations}.
      * All jars contained in configured directories (1st level) would be also added.
      */
     private Set<String> extraSourceDirs = new HashSet<>();
@@ -110,55 +112,12 @@ public class TeavmExtension {
      * Fail on compilation error.
      */
     private boolean stopOnErrors = true;
-    /**
-     * Minify files. Should be enabled for production, but disabled for dev.
-     */
-    private boolean obfuscated = true;
-    /**
-     * Strict teavm mode.
-     */
-    private boolean strict = false;
-    /**
-     * Copy java sources into generated folder so they could be loaded in browser through source maps (see
-     * {@link #sourceMapsGenerated}).
-     */
-    private boolean sourceFilesCopied = false;
-    /**
-     * Incremental compilation speeds up compilation, but limits some optimizations and so should be used only
-     * in dev mode.
-     */
-    private boolean incremental = false;
-    /**
-     * Generate debug information required for debug server (started from IDE).
-     */
-    private boolean debugInformationGenerated = false;
-    /**
-     * Generate source maps. In oder to be able to debug sources in browser enable {@link #sourceFilesCopied}.
-     */
-    private boolean sourceMapsGenerated = false;
-    /**
-     * Short file names. ONLY for C target.
-     */
-    private boolean shortFileNames = false;
-    /**
-     * Long jmp. ONLY for C target.
-     */
-    private boolean longjmpSupported = true;
-    /**
-     * Heap dump. ONLY for C target.
-     */
-    private boolean heapDump = false;
-    /**
-     * Fast dependency analysis. Probably could speed up compilation. ONLY for development! (option disables
-     * {@link #optimizationLevel} setting).
-     */
-    private boolean fastDependencyAnalysis = false;
     //    private boolean assertionsRemoved = false;
 
     /**
      * Top-level names limit. ONLY for JS target.
      */
-    private int maxTopLevelNames = 10000;
+    private int maxTopLevelNames = 10_000;
     /**
      * Minimal heap size (in mb). ONLY for WASM and C targets.
      */
@@ -167,14 +126,7 @@ public class TeavmExtension {
      * Maximum heap size (in mb). ONLY for WASM and C targets.
      */
     private int maxHeapSize = 128;
-    /**
-     * Output optimization level.
-     * SIMPLE – perform only basic optimizations, remain friendly to the debugger (recommended for development).
-     * ADVANCED – perform more optimizations, sometimes may stuck debugger (recommended for production).
-     * FULL – perform aggressive optimizations, increase compilation time, sometimes can make code even slower
-     * (recommended for WebAssembly).
-     */
-    private TeaVMOptimizationLevel optimizationLevel = TeaVMOptimizationLevel.ADVANCED;
+
     /**
      * An array of fully qualified class names. Each class must implement
      * {@link org.teavm.model.ClassHolderTransformer} interface and have a public no-argument constructor. These
@@ -194,13 +146,30 @@ public class TeavmExtension {
     /**
      * Options override for dev mode (enabled with {@link #dev} flag).
      */
-    private Dev devOptions = new Dev();
+    private DevOptions devOptions = new DevOptions();
 
 
     public TeavmExtension(final Project project) {
         final String buildDir = project.relativePath(project.getBuildDir());
         targetDir = buildDir + "/teavm";
         cacheDir = buildDir + "/teavm-cache";
+
+        // dev defaults
+        devOptions.setObfuscated(false);
+        devOptions.setStrict(false);
+        devOptions.setSourceFilesCopied(true);
+        devOptions.setIncremental(false);
+        devOptions.setDebugInformationGenerated(true);
+        devOptions.setSourceMapsGenerated(true);
+        devOptions.setFastDependencyAnalysis(false);
+        devOptions.setOptimizationLevel(TeaVMOptimizationLevel.SIMPLE);
+
+        // C
+        devOptions.setShortFileNames(false);
+        devOptions.setLongjmpSupported(true);
+        devOptions.setShortFileNames(false);
+        devOptions.setHeapDump(false);
+
     }
 
     public boolean isDev() {
@@ -241,14 +210,6 @@ public class TeavmExtension {
 
     public void setVersion(final String version) {
         this.version = version;
-    }
-
-    public void setTransformers(final List<String> transformers) {
-        this.transformers = transformers;
-    }
-
-    public void setClassesToPreserve(final List<String> classesToPreserve) {
-        this.classesToPreserve = classesToPreserve;
     }
 
     public List<String> getSourceSets() {
@@ -347,86 +308,6 @@ public class TeavmExtension {
         this.stopOnErrors = stopOnErrors;
     }
 
-    public boolean isObfuscated() {
-        return obfuscated;
-    }
-
-    public void setObfuscated(final boolean obfuscated) {
-        this.obfuscated = obfuscated;
-    }
-
-    public boolean isStrict() {
-        return strict;
-    }
-
-    public void setStrict(final boolean strict) {
-        this.strict = strict;
-    }
-
-    public boolean isSourceFilesCopied() {
-        return sourceFilesCopied;
-    }
-
-    public void setSourceFilesCopied(final boolean sourceFilesCopied) {
-        this.sourceFilesCopied = sourceFilesCopied;
-    }
-
-    public boolean isIncremental() {
-        return incremental;
-    }
-
-    public void setIncremental(final boolean incremental) {
-        this.incremental = incremental;
-    }
-
-    public boolean isDebugInformationGenerated() {
-        return debugInformationGenerated;
-    }
-
-    public void setDebugInformationGenerated(final boolean debugInformationGenerated) {
-        this.debugInformationGenerated = debugInformationGenerated;
-    }
-
-    public boolean isSourceMapsGenerated() {
-        return sourceMapsGenerated;
-    }
-
-    public void setSourceMapsGenerated(final boolean sourceMapsGenerated) {
-        this.sourceMapsGenerated = sourceMapsGenerated;
-    }
-
-    public boolean isShortFileNames() {
-        return shortFileNames;
-    }
-
-    public void setShortFileNames(final boolean shortFileNames) {
-        this.shortFileNames = shortFileNames;
-    }
-
-    public boolean isLongjmpSupported() {
-        return longjmpSupported;
-    }
-
-    public void setLongjmpSupported(final boolean longjmpSupported) {
-        this.longjmpSupported = longjmpSupported;
-    }
-
-    public boolean isHeapDump() {
-        return heapDump;
-    }
-
-    public void setHeapDump(final boolean heapDump) {
-        this.heapDump = heapDump;
-    }
-
-    public boolean isFastDependencyAnalysis() {
-        return fastDependencyAnalysis;
-    }
-
-    public void setFastDependencyAnalysis(final boolean fastDependencyAnalysis) {
-        this.fastDependencyAnalysis = fastDependencyAnalysis;
-    }
-
     public int getMaxTopLevelNames() {
         return maxTopLevelNames;
     }
@@ -449,14 +330,6 @@ public class TeavmExtension {
 
     public void setMaxHeapSize(final int maxHeapSize) {
         this.maxHeapSize = maxHeapSize;
-    }
-
-    public TeaVMOptimizationLevel getOptimizationLevel() {
-        return optimizationLevel;
-    }
-
-    public void setOptimizationLevel(final TeaVMOptimizationLevel optimizationLevel) {
-        this.optimizationLevel = optimizationLevel;
     }
 
     public List<String> getTransformers() {
@@ -483,89 +356,12 @@ public class TeavmExtension {
         this.classesToPreserve = Arrays.asList(classesToPreserve);
     }
 
-    public Dev getDevOptions() {
+    public DevOptions getDevOptions() {
         return devOptions;
     }
 
-    public void setDevOptions(final Dev devOptions) {
+    public void setDevOptions(final DevOptions devOptions) {
         this.devOptions = devOptions;
     }
 
-    /**
-     * Options override for dev mode.
-     */
-    public static class Dev {
-        private TeaVMOptimizationLevel optimizationLevel = TeaVMOptimizationLevel.SIMPLE;
-        private boolean obfuscated = false;
-        private boolean strict = false;
-        private boolean sourceFilesCopied = true;
-        private boolean incremental = false;
-        private boolean debugInformationGenerated = true;
-        private boolean sourceMapsGenerated = true;
-        private boolean fastDependencyAnalysis = false;
-
-        public TeaVMOptimizationLevel getOptimizationLevel() {
-            return optimizationLevel;
-        }
-
-        public void setOptimizationLevel(final TeaVMOptimizationLevel optimizationLevel) {
-            this.optimizationLevel = optimizationLevel;
-        }
-
-        public boolean isObfuscated() {
-            return obfuscated;
-        }
-
-        public void setObfuscated(final boolean obfuscated) {
-            this.obfuscated = obfuscated;
-        }
-
-        public boolean isStrict() {
-            return strict;
-        }
-
-        public void setStrict(final boolean strict) {
-            this.strict = strict;
-        }
-
-        public boolean isSourceFilesCopied() {
-            return sourceFilesCopied;
-        }
-
-        public void setSourceFilesCopied(final boolean sourceFilesCopied) {
-            this.sourceFilesCopied = sourceFilesCopied;
-        }
-
-        public boolean isIncremental() {
-            return incremental;
-        }
-
-        public void setIncremental(final boolean incremental) {
-            this.incremental = incremental;
-        }
-
-        public boolean isDebugInformationGenerated() {
-            return debugInformationGenerated;
-        }
-
-        public void setDebugInformationGenerated(final boolean debugInformationGenerated) {
-            this.debugInformationGenerated = debugInformationGenerated;
-        }
-
-        public boolean isSourceMapsGenerated() {
-            return sourceMapsGenerated;
-        }
-
-        public void setSourceMapsGenerated(final boolean sourceMapsGenerated) {
-            this.sourceMapsGenerated = sourceMapsGenerated;
-        }
-
-        public boolean isFastDependencyAnalysis() {
-            return fastDependencyAnalysis;
-        }
-
-        public void setFastDependencyAnalysis(final boolean fastDependencyAnalysis) {
-            this.fastDependencyAnalysis = fastDependencyAnalysis;
-        }
-    }
 }
