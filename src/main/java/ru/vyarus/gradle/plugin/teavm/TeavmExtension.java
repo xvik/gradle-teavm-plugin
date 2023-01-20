@@ -165,7 +165,6 @@ public class TeavmExtension extends DevOptions {
         devOptions.setOptimizationLevel(TeaVMOptimizationLevel.SIMPLE);
 
         // C
-        devOptions.setShortFileNames(false);
         devOptions.setLongjmpSupported(true);
         devOptions.setShortFileNames(false);
         devOptions.setHeapDump(false);
