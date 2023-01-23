@@ -131,6 +131,7 @@ public class TeavmPlugin implements Plugin<Project> {
 
         project.getTasks().withType(TeavmCompileTask.class).configureEach(task -> {
             task.getDebug().set(extension.isDebug());
+            final DevOptions options = extension.isDev() ? extension.getDevOptions() : extension;
 
             final ClasspathBuilder cp = new ClasspathBuilder(project,
                     extension.isDebug(),
@@ -140,7 +141,7 @@ public class TeavmPlugin implements Plugin<Project> {
             task.getClassPath().convention(cp.getDirectories());
             cp.dependencies(task.getDependencies());
 
-            if (extension.isSourceFilesCopied()) {
+            if (options.isSourceFilesCopied()) {
                 final SourcesBuilder src = new SourcesBuilder(project,
                         extension.isDebug(),
                         extension.getSourceSets(),
@@ -161,7 +162,7 @@ public class TeavmPlugin implements Plugin<Project> {
             task.getWasmVersion().convention(extension.getWasmVersion());
 
             task.getStopOnErrors().convention(extension.isStopOnErrors());
-            configureDevOptions(task, extension.isDev() ? extension.getDevOptions() : extension);
+            configureDevOptions(task, options);
 
             task.getMaxTopLevelNames().convention(extension.getMaxTopLevelNames());
             task.getMinHeapSize().convention(extension.getMinHeapSize());
