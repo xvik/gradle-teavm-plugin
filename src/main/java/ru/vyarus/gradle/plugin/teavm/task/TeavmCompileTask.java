@@ -62,7 +62,7 @@ public abstract class TeavmCompileTask extends DefaultTask {
     /**
      * @return directories with sources and source jar files
      */
-    @Input
+    @InputFiles
     @Optional
     public abstract SetProperty<Directory> getSources();
 
