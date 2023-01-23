@@ -57,7 +57,7 @@ public class SourcesBuilder {
         }
 
         // extra dirs
-        if (!debug && extraSourceDirs.isEmpty()) {
+        if (debug && !extraSourceDirs.isEmpty()) {
             System.out.println("Extra source directories: \n" + extraSourceDirs.stream()
                     .map(s -> "\t" + project.file(s).getAbsolutePath()
                             .replace(project.getRootDir().getAbsolutePath() + "/", ""))
