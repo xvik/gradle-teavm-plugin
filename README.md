@@ -7,7 +7,7 @@
 ### About
 
 Gradle [TeaVM](https://teavm.org/) plugin: java/kotlin/scala compilation to JS or WASM.
-In contrast to GWT, teavm works with compiled bytecode (sources not required).
+In contrast to [GWT](https://www.gwtproject.org/), teavm works with compiled bytecode (sources not required for compilation).
 
 Features:
 * Automatic teavm compiler version selection
@@ -201,6 +201,7 @@ to declare custom plugins repository:
     /**
      * Additional directories with compiled classes. Normally, this should not be needed as {@link #sourceSets}
      * already describe required directories. Could be useful only for specific cases.
+     * Values: strings with absolute or relative directories locations. 
      */
     extraClassDirs = []
     /**
@@ -208,6 +209,7 @@ to declare custom plugins repository:
      * be needed as sources already descibed with {@link #sourceSets} and dependencies sources are resolved
      * from {@link #configurations}.
      * All jars contained in configured directories (1st level) would be also added.
+     * Values: strings with absolute or relative directories locations. 
      */
     extraSourceDirs = []
     /**
@@ -315,9 +317,10 @@ to declare custom plugins repository:
      * transformers are used to transform ClassHolders, that are SSA-based representation of JVM classes. Transformers
      * run right after parsing JVM classes and producing SSA representation.
      */
-    transformers = null
+    transformers = []
     /**
      * Properties passed to all TeaVM plugins (usage examples unknown).
+     * Values: map of strings (key and value) 
      */
     properties = [:]
     /**
