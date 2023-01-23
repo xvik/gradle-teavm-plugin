@@ -118,12 +118,14 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
             System.out.println("Resources used: " + result.getUsedResources().size());
             if (getParameters().getDebug().get()) {
                 System.out.println(result.getUsedResources().stream()
-                        .map(s -> "\t" + s).collect(Collectors.joining("\n")));
+                        .map(s -> "\t" + s).sorted().collect(Collectors.joining("\n")));
 
-                System.out.println("Generated files: \n" + result.getGeneratedFiles().stream()
+                System.out.println("Generated files: " + result.getGeneratedFiles().size());
+                System.out.println(result.getGeneratedFiles().stream()
                         .map(s -> "\t" + s.replace(getParameters().getTargetDirectory().get().getAsFile()
                                 .getAbsolutePath() + File.separator, "") + " ("
                                 + FileUtils.byteCountToDisplaySize(new File(s).length()) + ")")
+                        .sorted()
                         .collect(Collectors.joining("\n ")));
             }
             System.out.println("Compiled in " + DurationFormatter.format(time));

@@ -61,6 +61,7 @@ public class SourcesBuilder {
             System.out.println("Extra source directories: \n" + extraSourceDirs.stream()
                     .map(s -> "\t" + project.file(s).getAbsolutePath()
                             .replace(project.getRootDir().getAbsolutePath() + "/", ""))
+                    .sorted()
                     .collect(Collectors.joining("\n")));
         }
         for (String dir : extraSourceDirs) {
@@ -74,6 +75,7 @@ public class SourcesBuilder {
                             .replace(project.getRootDir().getAbsolutePath() + "/", "") + "': \n" + Arrays.stream(jars)
                             .map(s -> "\t" + String.format("%-50s  %s", s.getName(), s
                                     .getAbsolutePath().replace(dirFile.getAbsolutePath() + "/", "")))
+                            .sorted()
                             .collect(Collectors.joining("\n")));
                 }
                 Collections.addAll(this.sourceJars, jars);
@@ -104,6 +106,7 @@ public class SourcesBuilder {
                         System.out.println("'" + sourceSet.getName() + "' source set sources: \n" + sources.stream()
                                 .map(s -> "\t" + s.getAsFile().getAbsolutePath()
                                         .replace(project.getProjectDir().getAbsolutePath() + "/", ""))
+                                .sorted()
                                 .collect(Collectors.joining("\n")));
                     }
                     sourceDirs.addAll(sources);
@@ -135,6 +138,7 @@ public class SourcesBuilder {
                 System.out.println("Resolved source artifacts for configuration'" + config + "': \n"
                         + sourceArtifacts.stream().map(s -> "\t" + String.format("%-50s  %s",
                                 s.getName(), s.getAbsolutePath()))
+                        .sorted()
                         .collect(Collectors.joining("\n")));
             }
             sourceJars.addAll(sourceArtifacts);

@@ -43,7 +43,7 @@ class TeavmPluginTest extends AbstractTest {
             }
 
             teavm {
-                extraClassDirs = ['build/classes/main']
+                extraClassDirs = ['build/classes/foo']
                 extraSourceDirs = ['src/foo/java']
 
                 mainClass = 'com.foo.Client'
@@ -60,7 +60,7 @@ class TeavmPluginTest extends AbstractTest {
         TeavmCompileTask task = project.tasks.findByName('compileTeavm')
 
         task.getClassPath().get().collect { project.relativePath(it.asFile)} as Set == [
-                'build/classes/java/main', 'build/resources/main', 'build/classes/main'] as Set
+                'build/classes/java/main', 'build/resources/main', 'build/classes/foo'] as Set
         task.dependencies.files.collect { it.getName()}.contains('teavm-classlib-0.7.0.jar')
 
         task.getSources().get().collect { project.relativePath(it.asFile)} as Set == [

@@ -51,6 +51,7 @@ public class ClasspathBuilder {
                         System.out.println("'" + sourceSet.getName() + "' source set classes: \n" + collect.stream()
                                 .map(s -> "\t" + s.getAsFile().getAbsolutePath()
                                         .replace(project.getProjectDir().getAbsolutePath() + "/", ""))
+                                .sorted()
                                 .collect(Collectors.joining("\n")));
                     }
                     res.addAll(collect);
@@ -67,6 +68,7 @@ public class ClasspathBuilder {
                 System.out.println("Extra class directories: \n" + extras.stream()
                         .map(s -> "\t" + s.getAsFile().getAbsolutePath()
                                 .replace(project.getProjectDir().getAbsolutePath() + "/", ""))
+                        .sorted()
                         .collect(Collectors.joining("\n")));
             }
             res.addAll(extras);
@@ -82,6 +84,7 @@ public class ClasspathBuilder {
                 if (debug) {
                     System.out.println("'" + config + "' configuration jars: \n" + jars.stream()
                             .map(s -> "\t" + String.format("%-50s  %s", s.getName(), s.getAbsolutePath()))
+                            .sorted()
                             .collect(Collectors.joining("\n")));
                 }
                 files.from(jars);
