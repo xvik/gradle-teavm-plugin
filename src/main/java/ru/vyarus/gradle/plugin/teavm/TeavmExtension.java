@@ -1,6 +1,8 @@
 package ru.vyarus.gradle.plugin.teavm;
 
+import org.gradle.api.Action;
 import org.gradle.api.Project;
+import org.gradle.api.tasks.Nested;
 import org.teavm.backend.wasm.render.WasmBinaryVersion;
 import org.teavm.tooling.TeaVMTargetType;
 import org.teavm.vm.TeaVMOptimizationLevel;
@@ -32,6 +34,7 @@ import java.util.Set;
 @SuppressWarnings({"checkstyle:ExplicitInitialization", "PMD.RedundantFieldInitializer", "PMD.ExcessivePublicCount",
         "PMD.TooManyFields"})
 public class TeavmExtension extends DevOptions {
+    private Project project;
 
     /**
      * Enables dev mode: use options from {@link #devOptions} configuration.
@@ -150,6 +153,7 @@ public class TeavmExtension extends DevOptions {
 
 
     public TeavmExtension(final Project project) {
+        this.project = project;
         final String buildDir = project.relativePath(project.getBuildDir());
         targetDir = buildDir + "/teavm";
         cacheDir = buildDir + "/teavm-cache";
@@ -335,8 +339,8 @@ public class TeavmExtension extends DevOptions {
         return transformers;
     }
 
-    public void setTransformers(final String... transformers) {
-        this.transformers = Arrays.asList(transformers);
+    public void setTransformers(final List<String> transformers) {
+        this.transformers = transformers;
     }
 
     public Map<String, String> getProperties() {
@@ -351,16 +355,16 @@ public class TeavmExtension extends DevOptions {
         return classesToPreserve;
     }
 
-    public void setClassesToPreserve(final String... classesToPreserve) {
-        this.classesToPreserve = Arrays.asList(classesToPreserve);
+    public void setClassesToPreserve(final List<String> classesToPreserve) {
+        this.classesToPreserve = classesToPreserve;
     }
 
+    @Nested
     public DevOptions getDevOptions() {
         return devOptions;
     }
 
-    public void setDevOptions(final DevOptions devOptions) {
-        this.devOptions = devOptions;
+    public void devOptions(Action<DevOptions> action) {
+        action.execute(getDevOptions());
     }
-
 }
