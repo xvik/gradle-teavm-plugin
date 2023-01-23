@@ -34,7 +34,6 @@ import java.util.Set;
 @SuppressWarnings({"checkstyle:ExplicitInitialization", "PMD.RedundantFieldInitializer", "PMD.ExcessivePublicCount",
         "PMD.TooManyFields"})
 public class TeavmExtension extends DevOptions {
-    private Project project;
 
     /**
      * Enables dev mode: use options from {@link #devOptions} configuration.
@@ -153,7 +152,6 @@ public class TeavmExtension extends DevOptions {
 
 
     public TeavmExtension(final Project project) {
-        this.project = project;
         final String buildDir = project.relativePath(project.getBuildDir());
         targetDir = buildDir + "/teavm";
         cacheDir = buildDir + "/teavm-cache";
