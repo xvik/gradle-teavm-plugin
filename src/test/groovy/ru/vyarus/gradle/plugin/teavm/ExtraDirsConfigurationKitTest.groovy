@@ -5,11 +5,9 @@ import org.gradle.testkit.runner.TaskOutcome
 
 /**
  * @author Vyacheslav Rusakov
- * @since 19.01.2023
+ * @since 21.01.2023
  */
-class LegacyKitTest extends AbstractKitTest {
-
-    String GRADLE_VERSION = '6.2'
+class ExtraDirsConfigurationKitTest extends AbstractKitTest {
 
     def "Check plugin execution"() {
         setup:
@@ -22,7 +20,12 @@ class LegacyKitTest extends AbstractKitTest {
             repositories { mavenCentral() }
 
             teavm {
+                sourceSets = [] // disable source sets
+                extraClassDirs = ['build/classes/java/main']
+                extraSourceDirs = ['src/main/java']
                 mainClass = 'example.Main'
+                sourceFilesCopied = true // to use source dirs
+                debug = true
             }
 
         """
@@ -38,10 +41,11 @@ public class Main {
 
         when: "run task"
         debug()
-        BuildResult result = runVer(GRADLE_VERSION, 'compileTeavm')
+        BuildResult result = run('compileTeavm')
 
         then: "task successful"
         result.task(':compileTeavm').outcome == TaskOutcome.SUCCESS
         result.output.contains('Output file successfully built')
     }
+
 }
