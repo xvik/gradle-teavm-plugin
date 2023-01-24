@@ -90,5 +90,12 @@ public class Main {
         then: "task successful"
         result.task(':compileTeavm').outcome == TaskOutcome.FAILED
         result.output.contains('Output file built with errors')
+
+        and: "errors shown inside exception"
+        result.output.contains("""> Teavm compilation failed:
+  
+  \tCorresponding meta method was not found
+  \t    at example.Main.doSmth
+  \t    at example.Main.main(Main.java:10)""")
     }
 }

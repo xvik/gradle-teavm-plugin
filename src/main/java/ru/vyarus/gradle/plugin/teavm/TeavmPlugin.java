@@ -96,7 +96,8 @@ public class TeavmPlugin implements Plugin<Project> {
                         detected = true;
                     }
                 }
-                System.out.println("TeaVM compiler version: " + version + (detected ? " (auto-detected)" : ""));
+                project.getLogger().lifecycle("TeaVM compiler version: {}{}",
+                        version, (detected ? " (auto-detected)" : ""));
                 dependencies.add(project.getDependencies().create("org.teavm:teavm-cli:" + extension.getVersion()));
             });
         });

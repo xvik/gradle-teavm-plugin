@@ -32,7 +32,7 @@ import java.util.Set;
  * @since 27.12.2022
  */
 @SuppressWarnings({"checkstyle:ExplicitInitialization", "PMD.RedundantFieldInitializer", "PMD.ExcessivePublicCount",
-        "PMD.TooManyFields"})
+        "PMD.TooManyFields", "PMD.AvoidFieldNameMatchingMethodName"})
 public class TeavmExtension extends DevOptions {
 
     /**
@@ -148,7 +148,7 @@ public class TeavmExtension extends DevOptions {
     /**
      * Options override for dev mode (enabled with {@link #dev} flag).
      */
-    private DevOptions devOptions = new DevOptions();
+    private final DevOptions devOptions = new DevOptions();
 
 
     public TeavmExtension(final Project project) {
@@ -362,7 +362,7 @@ public class TeavmExtension extends DevOptions {
         return devOptions;
     }
 
-    public void devOptions(Action<DevOptions> action) {
+    public void devOptions(final Action<DevOptions> action) {
         action.execute(getDevOptions());
     }
 }

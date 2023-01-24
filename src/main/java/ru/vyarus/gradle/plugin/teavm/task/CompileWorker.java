@@ -1,5 +1,6 @@
 package ru.vyarus.gradle.plugin.teavm.task;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.gradle.workers.WorkAction;
 import org.teavm.apachecommons.io.FileUtils;
 import org.teavm.tooling.TeaVMProblemRenderer;
@@ -15,6 +16,9 @@ import ru.vyarus.gradle.plugin.teavm.util.DurationFormatter;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -46,7 +50,7 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
             // no way to show exception otherwise
             System.err.println("Unexpected compilation error");
             ex.printStackTrace();
-            indicateFail();
+            indicateFail(ex.getMessage());
         }
     }
 
@@ -106,11 +110,12 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
         final long time = System.currentTimeMillis() - watch;
 
         if (result.getProblems() != null) {
-            TeaVMProblemRenderer.describeProblems(result.getCallGraph(), result.getProblems(), new LogDelegate());
+            final LogDelegate log = new LogDelegate(true);
+            TeaVMProblemRenderer.describeProblems(result.getCallGraph(), result.getProblems(), log);
 
             if (!result.getProblems().getSevereProblems().isEmpty()) {
-                // indicate error
-                indicateFail();
+                // indicate error (double space to separate multi-line errors)
+                indicateFail(String.join("\n\n", log.getErrors()));
             }
         }
 
@@ -133,9 +138,12 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
 
     }
 
-    private void indicateFail() {
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
+    private void indicateFail(final String message) {
         try {
-            getParameters().getErrorFile().get().getAsFile().createNewFile();
+            final File file = getParameters().getErrorFile().get().getAsFile();
+            file.createNewFile();
+            Files.writeString(file.toPath(), message);
         } catch (IOException ex) {
             System.err.println("Error creating marker file");
             ex.printStackTrace();
@@ -170,6 +178,16 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
      * TeaVM logs delegate. Worker does not support loggers so system out used instead.
      */
     public static class LogDelegate implements TeaVMToolLog {
+        private final boolean collectErrors;
+        private final List<String> errors = new ArrayList<>();
+
+        public LogDelegate() {
+            this(false);
+        }
+
+        public LogDelegate(final boolean collectErrors) {
+            this.collectErrors = collectErrors;
+        }
 
         // \r required to remove last LogListener line from output (after progress listener)
 
@@ -209,12 +227,20 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
         @Override
         public void error(final String s) {
             System.out.println("\rERROR: " + s);
+            // only this method used by teavm to report compilation errors
+            if (collectErrors) {
+                errors.add(s);
+            }
         }
 
         @Override
         public void error(final String s, final Throwable throwable) {
             System.err.println("\rERROR: " + s);
             throwable.printStackTrace();
+        }
+
+        public List<String> getErrors() {
+            return errors;
         }
     }
 }

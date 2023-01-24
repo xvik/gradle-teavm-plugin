@@ -25,7 +25,10 @@ import org.teavm.vm.TeaVMOptimizationLevel;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +38,7 @@ import java.util.stream.Collectors;
  * @author Vyacheslav Rusakov
  * @since 06.01.2023
  */
+@SuppressWarnings("PMD.ExcessiveImports")
 public abstract class TeavmCompileTask extends DefaultTask {
 
     @Inject
@@ -248,8 +252,16 @@ public abstract class TeavmCompileTask extends DefaultTask {
         runCompilation(workQueue, resultFile);
 
         if (getStopOnErrors().get() && resultFile.exists()) {
+            String errors = null;
+            try {
+                errors = Files.readString(resultFile.toPath());
+                // shift
+                errors = Arrays.stream(errors.split("\n")).map(s -> "\t" + s).collect(Collectors.joining("\n"));
+            } catch (IOException ignored) {
+                // ignore
+            }
             FileUtils.deleteQuietly(resultFile);
-            throw new GradleException("Teavm compilation failed");
+            throw new GradleException("Teavm compilation failed" + (errors == null ? "" : (":\n\n" + errors + "\n")));
         }
     }
 
