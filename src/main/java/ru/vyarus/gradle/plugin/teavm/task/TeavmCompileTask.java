@@ -262,6 +262,9 @@ public abstract class TeavmCompileTask extends DefaultTask {
             }
             FileUtils.deleteQuietly(resultFile);
             throw new GradleException("Teavm compilation failed" + (errors == null ? "" : (":\n\n" + errors + "\n")));
+        } else if (resultFile.exists()) {
+            // stop on error disabled
+            FileUtils.deleteQuietly(resultFile);
         }
     }
 

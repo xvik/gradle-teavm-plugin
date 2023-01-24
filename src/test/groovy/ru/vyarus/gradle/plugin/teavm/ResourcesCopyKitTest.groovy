@@ -27,6 +27,7 @@ class ResourcesCopyKitTest extends AbstractKitTest {
 
             teavm {
                 mixedResources = true
+                debug = true
                 mainClass = 'example.Client'
             }
 
@@ -74,6 +75,8 @@ public class Client extends ApplicationTemplate {
         then: "task successful"
         result.task(':compileTeavm').outcome == TaskOutcome.SUCCESS
         result.output.contains('Output file successfully built')
+        result.output.contains("""Mixed resources mode for source set 'main': 
+\tsrc/main/java""")
     }
 
     def "Check build fails without mixed resources"() {
