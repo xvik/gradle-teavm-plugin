@@ -89,9 +89,7 @@ public class TeavmPlugin implements Plugin<Project> {
                 boolean detected = false;
                 if (extension.isAutoVersion()) {
                     final String auto = autoDetectVersion(project, extension.getConfigurations());
-                    if (auto == null) {
-                        project.getLogger().warn("Failed to auto-detect TeaVM version from classpath");
-                    } else {
+                    if (auto != null) {
                         version = auto;
                         detected = true;
                     }

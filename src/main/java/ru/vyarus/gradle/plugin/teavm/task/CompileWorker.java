@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -50,7 +51,7 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
             // no way to show exception otherwise
             System.err.println("Unexpected compilation error");
             ex.printStackTrace();
-            indicateFail(ex.getMessage());
+            indicateFail("Unexpected processing error: \n" + ex.getMessage());
         }
     }
 
@@ -133,7 +134,7 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
                         .sorted()
                         .collect(Collectors.joining("\n ")));
             }
-            System.out.println("Compiled in " + DurationFormatter.format(time));
+            System.out.println("Overall time: " + DurationFormatter.format(time));
         }
 
     }
@@ -154,23 +155,60 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
      * TeaVM progress indicator.
      */
     public static class LogListener implements TeaVMProgressListener {
-        private double target = 1.0;
         private TeaVMPhase currentPhase;
+        private int target = 1;
+        private long timer;
 
         @Override
         public TeaVMProgressFeedback phaseStarted(final TeaVMPhase phase, final int maxSteps) {
-            // \r for overriding previous line
-            System.out.printf("\rTeaVM: Progress, phase: %s started, targeted steps: %s", phase, maxSteps);
-            target = maxSteps;
+            if (timer > 0 && currentPhase != null) {
+                // teavm may not call listener on 100% so showing previous phase log before changing phase
+                // note: time would not be as accurate, but better then nothing
+                phaseDone();
+            }
             currentPhase = phase;
+            target = maxSteps;
+            timer = System.currentTimeMillis();
             return TeaVMProgressFeedback.CONTINUE;
         }
 
         @Override
         public TeaVMProgressFeedback progressReached(final int stepsReached) {
-            System.out.printf("\rTeaVM: %s; progress reached: %s of %s -- %s%%", currentPhase, stepsReached,
-                    (int) target, (int) (Math.round(stepsReached / target * 100.0)));
+            if (stepsReached == target) {
+                phaseDone();
+                // prevent same log in start phase
+                timer = 0;
+            } else {
+                // log10 from 0 is impossible, so always start with 1
+                final int current = stepsReached == 0 ? 1 : stepsReached;
+                // use 1000 to show 0% for 1
+                final int total = target == 1 ? 1000 : target;
+                final StringBuilder string = new StringBuilder(140);
+                final int percent = current * 100 / total;
+                // \r for overriding previous progress line
+                string
+                        .append('\r').append(currentPhase).append(' ')
+                        .append(String.join("", Collections.nCopies(percent == 0 ? 2
+                                : 2 - (int) (Math.log10(percent)), " ")))
+                        .append(String.format(" %d%% [", percent))
+                        .append(String.join("", Collections.nCopies(percent, "=")))
+                        .append('>')
+                        .append(String.join("", Collections.nCopies(100 - percent, " ")))
+                        .append(']')
+                        .append(String.join("", Collections.nCopies((int) (Math.log10(total))
+                                - (int) (Math.log10(current)), " ")))
+                        .append(String.format(" %d/%d", stepsReached, target));
+
+                System.out.print(string);
+            }
+
             return TeaVMProgressFeedback.CONTINUE;
+        }
+
+        private void phaseDone() {
+            // overwrite progress with static text
+            System.out.printf("\r\t %-40s %s%n", currentPhase,
+                    DurationFormatter.format(System.currentTimeMillis() - timer));
         }
     }
 
@@ -189,7 +227,7 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
             this.collectErrors = collectErrors;
         }
 
-        // \r required to remove last LogListener line from output (after progress listener)
+        // \r required to remove possible last LogListener line from output (after error)
 
         @Override
         public void info(final String s) {
