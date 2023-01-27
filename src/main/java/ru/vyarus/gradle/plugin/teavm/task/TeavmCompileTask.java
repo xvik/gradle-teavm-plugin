@@ -10,6 +10,8 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
+import org.gradle.api.tasks.Classpath;
+import org.gradle.api.tasks.Console;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
@@ -47,8 +49,7 @@ public abstract class TeavmCompileTask extends DefaultTask {
     /**
      * @return true to show teavm compilation debug information
      */
-    @Input
-    @Optional
+    @Console
     public abstract Property<Boolean> getDebug();
 
     /**
@@ -60,7 +61,7 @@ public abstract class TeavmCompileTask extends DefaultTask {
     /**
      * @return collection of dependent jar files
      */
-    @InputFiles
+    @Classpath
     public abstract ConfigurableFileCollection getDependencies();
 
     /**
