@@ -30,11 +30,11 @@ jobs:
           GH_ACTIONS: true
         run: ./gradlew check --no-daemon
 
-#      - name: Build coverage report
-#        run: ./gradlew jacocoTestReport --no-daemon
-#
-#      - uses: codecov/codecov-action@v2
-#        with:
-#          files: build/reports/jacoco/test/jacocoTestReport.xml
-#          flags: LINUX
-#          fail_ci_if_error: true
+      - name: Build coverage report
+        run: ./gradlew jacocoTestReport --no-daemon
+
+      - uses: codecov/codecov-action@v2
+        with:
+          files: build/reports/jacoco/test/jacocoTestReport.xml
+          flags: LINUX
+          fail_ci_if_error: true
