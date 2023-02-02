@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  * @author Vyacheslav Rusakov
  * @since 06.01.2023
  */
-@SuppressWarnings("PMD.ExcessiveImports")
+@SuppressWarnings({"PMD.ExcessiveImports", "checkstyle:ClassFanOutComplexity"})
 public abstract class TeavmCompileTask extends DefaultTask {
 
     @Inject
