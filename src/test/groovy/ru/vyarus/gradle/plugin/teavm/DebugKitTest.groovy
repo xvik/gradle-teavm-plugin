@@ -48,7 +48,7 @@ public class Main {
 
         then: "task successful"
         result.task(':compileTeavm').outcome == TaskOutcome.SUCCESS
-        def out = result.output.replace("\r", "");
+        def out = result.output.replace("\r", "").replace(File.separator, '/')
         out.contains('Output file successfully built')
 
         out.contains("""'main' source set classes: 
@@ -75,5 +75,4 @@ Extra source directories:
  \tsrc/example/Main.java (134 bytes)
 """)
     }
-
 }

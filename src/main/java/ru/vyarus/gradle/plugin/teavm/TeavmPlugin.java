@@ -215,7 +215,7 @@ public class TeavmPlugin implements Plugin<Project> {
                         if (extension.isDebug()) {
                             System.out.println("Mixed resources mode for source set '" + sourceSet.getName() + "': \n"
                                     + files.stream().map(file -> "\t" + file.getAbsolutePath()
-                                            .replace(project.getProjectDir().getAbsolutePath() + "/", ""))
+                                            .replace(project.getProjectDir().getAbsolutePath() + File.separator, ""))
                                     .collect(Collectors.joining("\n")));
                         }
                     }

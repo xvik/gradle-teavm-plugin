@@ -60,7 +60,7 @@ public class SourcesBuilder {
         if (debug && !extraSourceDirs.isEmpty()) {
             System.out.println("Extra source directories: \n" + extraSourceDirs.stream()
                     .map(s -> "\t" + project.file(s).getAbsolutePath()
-                            .replace(project.getRootDir().getAbsolutePath() + "/", ""))
+                            .replace(project.getRootDir().getAbsolutePath() + File.separator, ""))
                     .sorted()
                     .collect(Collectors.joining("\n")));
         }
@@ -72,9 +72,10 @@ public class SourcesBuilder {
             if (jars != null && jars.length > 0) {
                 if (debug) {
                     System.out.println("Source jars from extra directory '" + dirFile.getAbsolutePath()
-                            .replace(project.getRootDir().getAbsolutePath() + "/", "") + "': \n" + Arrays.stream(jars)
+                            .replace(project.getRootDir().getAbsolutePath() + File.separator, "")
+                            + "': \n" + Arrays.stream(jars)
                             .map(s -> "\t" + String.format("%-50s  %s", s.getName(), s
-                                    .getAbsolutePath().replace(dirFile.getAbsolutePath() + "/", "")))
+                                    .getAbsolutePath().replace(dirFile.getAbsolutePath() + File.separator, "")))
                             .sorted()
                             .collect(Collectors.joining("\n")));
                 }
@@ -105,7 +106,7 @@ public class SourcesBuilder {
                     if (debug) {
                         System.out.println("'" + sourceSet.getName() + "' source set sources: \n" + sources.stream()
                                 .map(s -> "\t" + s.getAsFile().getAbsolutePath()
-                                        .replace(project.getProjectDir().getAbsolutePath() + "/", ""))
+                                        .replace(project.getProjectDir().getAbsolutePath() + File.separator, ""))
                                 .sorted()
                                 .collect(Collectors.joining("\n")));
                     }
