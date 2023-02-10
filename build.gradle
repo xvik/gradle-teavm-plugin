@@ -86,8 +86,8 @@ release.git.requireBranch.set('master')
 
 afterReleaseBuild {
     dependsOn = [
-            'publishMavenPublicationToSonatypeRepository',
-            'closeAndReleaseSonatypeStagingRepository',
+//            'publishMavenPublicationToSonatypeRepository',
+//            'closeAndReleaseSonatypeStagingRepository',
             publishPlugins]
     doLast {
         logger.warn "RELEASED $project.group:$project.name:$project.version"
