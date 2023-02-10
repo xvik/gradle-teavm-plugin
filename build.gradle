@@ -1,5 +1,5 @@
 plugins {
-    id 'com.gradle.plugin-publish' version '0.21.0'
+    id 'com.gradle.plugin-publish' version '1.1.0'
     id 'java-gradle-plugin'
     id 'groovy'
     id 'jacoco'
@@ -75,17 +75,10 @@ gradlePlugin {
         teavmPlugin {
             id = 'ru.vyarus.teavm'
             displayName = project.description
+            description = 'Gradle TeaVM plugin'
+            tags.addAll('teavm', 'java', 'javascript', 'webassembly')
             implementationClass = 'ru.vyarus.gradle.plugin.teavm.TeavmPlugin'
         }
-    }
-}
-pluginBundle {
-    description = 'Gradle TeaVM plugin'
-    tags = ['teavm', 'java', 'javascript', 'webassembly']
-
-    mavenCoordinates {
-        groupId = project.group
-        artifactId = project.name
     }
 }
 
