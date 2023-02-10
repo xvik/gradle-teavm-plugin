@@ -76,7 +76,7 @@ gradlePlugin {
             id = 'ru.vyarus.teavm'
             displayName = project.description
             description = 'Gradle TeaVM plugin'
-            tags.addAll('teavm', 'java', 'javascript', 'webassembly')
+            tags.set(['teavm', 'java', 'javascript', 'webassembly'])
             implementationClass = 'ru.vyarus.gradle.plugin.teavm.TeavmPlugin'
         }
     }
