@@ -71,6 +71,9 @@ javaLib {
 
 
 gradlePlugin {
+    website = github.site
+    vcsUrl = github.vcsUrl
+
     plugins {
         teavmPlugin {
             id = 'ru.vyarus.teavm'
@@ -80,6 +83,11 @@ gradlePlugin {
             implementationClass = 'ru.vyarus.gradle.plugin.teavm.TeavmPlugin'
         }
     }
+}
+
+pluginBundle {
+    description = 'Gradle TeaVM plugin'
+    tags = ['teavm', 'java', 'javascript', 'webassembly']
 }
 
 release.git.requireBranch.set('master')
