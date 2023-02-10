@@ -81,7 +81,7 @@ gradlePlugin {
 }
 pluginBundle {
     description = 'Gradle TeaVM plugin'
-    tags = ['teavm']
+    tags = ['teavm', 'java', 'javascript', 'webassembly']
 
     mavenCoordinates {
         groupId = project.group

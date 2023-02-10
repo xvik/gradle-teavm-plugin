@@ -9,7 +9,7 @@
     "projectVersion": "0.1.0",
     "projectDesc": "Gradle TeaVM plugin",
     "pluginPortalDesc": "Gradle TeaVM plugin",
-    "pluginPortalTags": "teavm",
+    "pluginPortalTags": "teavm, java, javascript, webassembly",
     "centralPublish": true,
     "pluginPortalUseCustomGroup": true,
     "usedGeneratorVersion": "2.1.0"
