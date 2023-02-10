@@ -2,11 +2,14 @@ package ru.vyarus.gradle.plugin.teavm
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
+import spock.lang.IgnoreIf
 
 /**
  * @author Vyacheslav Rusakov
  * @since 17.01.2023
  */
+// appveyor can't load teavm from custom repo for unknown reason
+@IgnoreIf({ System.getenv('APPVEYOR') })
 class VersionDetectionKitTest extends AbstractKitTest {
 
     def "Check teavm version auto detection from classpath"() {
