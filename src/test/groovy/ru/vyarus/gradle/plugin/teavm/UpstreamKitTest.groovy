@@ -10,7 +10,7 @@ import org.gradle.testkit.runner.TaskOutcome
  */
 class UpstreamKitTest extends AbstractKitTest {
 
-    String GRADLE_VERSION = '7.6'
+    String GRADLE_VERSION = '8.0'
     // https://teavm.org/maven/repository/org/teavm/teavm-cli/
     String TEAVM_RECENT = '0.7.0-dev-1209'
 
