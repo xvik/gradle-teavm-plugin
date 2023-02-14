@@ -26,7 +26,9 @@ dependencies {
 
     // compiled with this version, and this version used at runtime to support enums, but compiler could be executed
     // with different version
-    implementation 'org.teavm:teavm-cli:0.7.0'
+    implementation 'org.teavm:teavm-core:0.7.0'
+    implementation 'org.teavm:teavm-classlib:0.7.0'
+    implementation 'org.teavm:teavm-tooling:0.7.0'
 
     testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'
 }

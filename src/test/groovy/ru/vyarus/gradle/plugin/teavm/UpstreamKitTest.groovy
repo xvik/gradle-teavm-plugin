@@ -12,7 +12,7 @@ class UpstreamKitTest extends AbstractKitTest {
 
     String GRADLE_VERSION = '8.0'
     // https://teavm.org/maven/repository/org/teavm/teavm-cli/
-    String TEAVM_RECENT = '0.7.0-dev-1209'
+    String TEAVM_RECENT = '0.7.0-dev-1212'
 
     def "Check plugin execution for the latest gradle"() {
         setup:
