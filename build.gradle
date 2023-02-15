@@ -60,6 +60,10 @@ nexusPublishing {
     }
 }
 
+afterEvaluate {
+    println publishing.publications.maven.artifacts
+}
+
 // skip signing for jitpack (snapshots)
 tasks.withType(Sign) {onlyIf { !System.getenv('JITPACK') }}
 
@@ -69,6 +73,8 @@ tasks.withType(Sign) {onlyIf { !System.getenv('JITPACK') }}
 javaLib {
     // don't publish gradle metadata artifact
     withoutGradleMetadata()
+    withoutSources()
+    withoutJavadoc()
 }
 
 

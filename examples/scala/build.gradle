@@ -1,7 +1,7 @@
 plugins {
     id 'scala'
     id 'java-library'
-    id 'ru.vyarus.teavm' version '1.0.0-SNAPSHOT'
+    id 'ru.vyarus.teavm' // version '1.0.0'
 }
 
 ext {
