@@ -26,7 +26,7 @@ Features:
 
 ```groovy
 plugins {
-    id 'ru.vyarus.teavm' version '1.0.0'
+    id 'ru.vyarus.teavm' version '1.0.1'
 }
 ```
 
@@ -38,7 +38,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'ru.vyarus:gradle-teavm-plugin:1.0.0'
+        classpath 'ru.vyarus:gradle-teavm-plugin:1.0.1'
     }
 }
 apply plugin: 'ru.vyarus.teavm'
@@ -50,7 +50,7 @@ NOTE: Java 11 or above is required (teavm compiled for java 11).
 
 Gradle | Version
 --------|-------
-6.2-7   | 1.0.0
+6.2-7   | 1.0.1
 
 ### Usage
 

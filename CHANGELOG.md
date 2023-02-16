@@ -1,3 +1,4 @@
+### 1.0.1 (2023-02-16)
 * Fix auto detected version usage
 * Use teavm-tooling instead of teavm-cli (to workaround not published cli snapshots)
 
