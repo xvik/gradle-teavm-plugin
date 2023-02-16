@@ -1,5 +1,5 @@
 plugins {
-    id 'ru.vyarus.teavm' version '1.0.0'
+    id 'ru.vyarus.teavm' version '1.0.1'
 }
 
 wrapper {
