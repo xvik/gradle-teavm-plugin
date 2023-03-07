@@ -1,3 +1,4 @@
+### 1.1.0 (2023-03-08)
 * Update to teavm 0.8.0
 * Add new assertionsRemoved dev option (false by default)
 

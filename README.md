@@ -193,7 +193,7 @@ to declare custom plugins repository:
     /**
      * Teavm version to use. Ignored when {@link #autoVersion} enabled.
      */
-    version = "0.7.0"
+    version = "0.8.0"
 
     /**
      * Source sets to compile js from. By default, java, kotlin and scala supported.
