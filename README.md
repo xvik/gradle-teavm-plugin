@@ -13,7 +13,7 @@ In contrast to [GWT](https://www.gwtproject.org/), teavm works with compiled byt
 - Single `teavmCompile` task and single configuration (instead of per type (js/wasm/etc.) configurations)
 - Dev mode support (easy switching to dev configuration)
 - Configurable compiler version (official plugin release together with teavm and so targets exact version, while this plugin detects version from classpath)
-- No tests support
+- No tests support ([must be configured manually](examples/java/build.gradle))
 
 Features:
 * Automatic teavm compiler version selection

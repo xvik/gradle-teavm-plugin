@@ -14,6 +14,9 @@ repositories {
 dependencies {
     implementation "org.teavm:teavm-classlib:$teavm"
     implementation "org.teavm:teavm-jso:$teavm"
+
+    testImplementation "junit:junit:4.13.2"
+    testImplementation "org.teavm:teavm-junit:$teavm"
 }
 
 teavm {
@@ -21,6 +24,15 @@ teavm {
     dev = false
     debug = true
     mainClass = 'example.Client'
+}
+
+// https://teavm.org/docs/tooling/testing.html
+// NOTE: compilation options above are not used for test!
+test {
+    systemProperty 'teavm.junit.target', 'build/teavm-test'
+    systemProperty 'teavm.junit.js', 'true'
+    systemProperty 'teavm.junit.js.runner', 'browser-chrome'
+    systemProperty 'teavm.junit.js.decodeStack', 'true'
 }
 
 tasks.register('buildWebapp', Copy) {
