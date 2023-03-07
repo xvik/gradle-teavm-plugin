@@ -1,10 +1,10 @@
 plugins {
     id 'java'
-    id 'ru.vyarus.teavm' // version '1.0.0'
+    id 'ru.vyarus.teavm' // version '1.1.0'
 }
 
 ext {
-    teavm = '0.7.0'
+    teavm = '0.8.0'
 }
 
 repositories {
