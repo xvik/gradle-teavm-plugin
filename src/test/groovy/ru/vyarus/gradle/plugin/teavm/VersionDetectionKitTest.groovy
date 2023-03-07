@@ -26,7 +26,7 @@ class VersionDetectionKitTest extends AbstractKitTest {
             }
             
             dependencies {
-                implementation "org.teavm:teavm-classlib:0.7.0-dev-1209"
+                implementation "org.teavm:teavm-classlib:0.8.0-dev-2"
             }
 
             teavm {
@@ -52,7 +52,7 @@ public class Main {
 
         then: "task successful"
         result.task(':compileTeavm').outcome == TaskOutcome.SUCCESS
-        result.output.contains('TeaVM compiler version: 0.7.0-dev-1209 (auto-detected)')
+        result.output.contains('TeaVM compiler version: 0.8.0-dev-2 (auto-detected)')
         result.output.contains('Output file successfully built')
     }
 
@@ -70,7 +70,7 @@ public class Main {
             }
             
             dependencies {
-                implementation "org.teavm:teavm-classlib:0.7.0-dev-1209"
+                implementation "org.teavm:teavm-classlib:0.8.0-dev-2"
             }
 
             teavm {
@@ -96,7 +96,7 @@ public class Main {
 
         then: "task successful"
         result.task(':compileTeavm').outcome == TaskOutcome.SUCCESS
-        result.output.contains('TeaVM compiler version: 0.7.0')
+        result.output.contains('TeaVM compiler version: 0.8.0')
         result.output.contains('Output file successfully built')
     }
 }

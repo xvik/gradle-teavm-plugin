@@ -137,6 +137,11 @@ public interface CompileParameters extends WorkParameters {
     Property<Boolean> getFastDependencyAnalysis();
 
     /**
+     * @return true to remove assertions during compilation
+     */
+    Property<Boolean> getAssertionsRemoved();
+
+    /**
      * @return max top level names (JS target only)
      */
     Property<Integer> getMaxTopLevelNames();

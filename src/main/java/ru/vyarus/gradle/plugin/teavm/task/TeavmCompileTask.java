@@ -1,5 +1,6 @@
 package ru.vyarus.gradle.plugin.teavm.task;
 
+import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.artifacts.Configuration;
@@ -20,7 +21,6 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.workers.WorkQueue;
 import org.gradle.workers.WorkerExecutor;
-import org.teavm.apachecommons.io.FileUtils;
 import org.teavm.backend.wasm.render.WasmBinaryVersion;
 import org.teavm.tooling.TeaVMTargetType;
 import org.teavm.vm.TeaVMOptimizationLevel;
@@ -191,6 +191,12 @@ public abstract class TeavmCompileTask extends DefaultTask {
     public abstract Property<Boolean> getFastDependencyAnalysis();
 
     /**
+     * @return true to remove assertions during compilation
+     */
+    @Input
+    public abstract Property<Boolean> getAssertionsRemoved();
+
+    /**
      * @return max top level names (JS target only)
      */
     @Input
@@ -302,6 +308,7 @@ public abstract class TeavmCompileTask extends DefaultTask {
             parameters.getLongjmpSupported().set(getLongjmpSupported());
             parameters.getHeapDump().set(getHeapDump());
             parameters.getFastDependencyAnalysis().set(getFastDependencyAnalysis());
+            parameters.getAssertionsRemoved().set(getAssertionsRemoved());
 
             parameters.getMaxTopLevelNames().set(getMaxTopLevelNames());
             parameters.getMinHeapSize().set(getMinHeapSize());

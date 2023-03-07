@@ -51,6 +51,10 @@ public class DevOptions {
      */
     private boolean fastDependencyAnalysis = false;
     /**
+     * Remove assertions.
+     */
+    private boolean assertionsRemoved = false;
+    /**
      * Output optimization level.
      * SIMPLE – perform only basic optimizations, remain friendly to the debugger (recommended for development).
      * ADVANCED – perform more optimizations, sometimes may stuck debugger (recommended for production).
@@ -145,5 +149,13 @@ public class DevOptions {
 
     public void setFastDependencyAnalysis(final boolean fastDependencyAnalysis) {
         this.fastDependencyAnalysis = fastDependencyAnalysis;
+    }
+
+    public boolean isAssertionsRemoved() {
+        return assertionsRemoved;
+    }
+
+    public void setAssertionsRemoved(final boolean assertionsRemoved) {
+        this.assertionsRemoved = assertionsRemoved;
     }
 }

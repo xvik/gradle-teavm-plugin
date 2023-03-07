@@ -53,6 +53,7 @@ class TeavmPluginTest extends AbstractTest {
                 classesToPreserve = ['com.foo.Some']
                 transformers = ['com.bar.Other']
                 properties = ['foo': 'bar']
+                assertionsRemoved = true
             }
         }
 
@@ -61,11 +62,11 @@ class TeavmPluginTest extends AbstractTest {
 
         task.getClassPath().get().collect { project.relativePath(it.asFile).replace(File.separator, '/')} as Set == [
                 'build/classes/java/main', 'build/resources/main', 'build/classes/foo'] as Set
-        task.dependencies.files.collect { it.getName()}.contains('teavm-classlib-0.7.0.jar')
+        task.dependencies.files.collect { it.getName()}.contains('teavm-classlib-0.8.0.jar')
 
         task.getSources().get().collect { project.relativePath(it.asFile).replace(File.separator, '/')} as Set == [
                 'src/main/java', 'src/main/resources', 'src/foo/java'] as Set
-        task.sourceDependencies.files.collect { it.getName()}.contains('teavm-classlib-0.7.0-sources.jar')
+        task.sourceDependencies.files.collect { it.getName()}.contains('teavm-classlib-0.8.0-sources.jar')
 
         project.relativePath(task.getTargetDir().get().asFile).replace(File.separator, '/') == 'build/teavm'
         project.relativePath(task.getCacheDir().get().asFile).replace(File.separator, '/') == 'build/teavm-cache'
@@ -90,6 +91,7 @@ class TeavmPluginTest extends AbstractTest {
         !task.debugInformationGenerated.get()
         !task.sourceMapsGenerated.get()
         !task.fastDependencyAnalysis.get()
+        task.assertionsRemoved.get()
         task.optimizationLevel.get() == TeaVMOptimizationLevel.ADVANCED
         !task.shortFileNames.get()
         task.longjmpSupported.get()
@@ -119,6 +121,7 @@ class TeavmPluginTest extends AbstractTest {
                 debugInformationGenerated = false
                 sourceMapsGenerated = false
                 fastDependencyAnalysis = false
+                assertionsRemoved = true
                 optimizationLevel = ADVANCED
 
                 // C target ONLY
@@ -134,6 +137,7 @@ class TeavmPluginTest extends AbstractTest {
                     debugInformationGenerated = true
                     sourceMapsGenerated = true
                     fastDependencyAnalysis = true
+                    assertionsRemoved = false
                     optimizationLevel = SIMPLE
 
                     // C target ONLY
@@ -153,6 +157,7 @@ class TeavmPluginTest extends AbstractTest {
         task.debugInformationGenerated.get()
         task.sourceMapsGenerated.get()
         task.fastDependencyAnalysis.get()
+        !task.assertionsRemoved.get()
         task.optimizationLevel.get() == TeaVMOptimizationLevel.SIMPLE
         task.shortFileNames.get()
         task.longjmpSupported.get()

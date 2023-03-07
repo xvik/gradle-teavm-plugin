@@ -14,14 +14,12 @@ import org.teavm.tooling.TeaVMTargetType;
 import org.teavm.vm.TeaVMOptimizationLevel;
 import ru.vyarus.gradle.plugin.teavm.task.TeavmCompileTask;
 import ru.vyarus.gradle.plugin.teavm.util.ClasspathBuilder;
-import ru.vyarus.gradle.plugin.teavm.util.FsUtils;
 import ru.vyarus.gradle.plugin.teavm.util.SourcesBuilder;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -190,6 +188,7 @@ public class TeavmPlugin implements Plugin<Project> {
         task.getLongjmpSupported().convention(options.isLongjmpSupported());
         task.getHeapDump().convention(options.isHeapDump());
         task.getFastDependencyAnalysis().convention(options.isFastDependencyAnalysis());
+        task.getAssertionsRemoved().convention(options.isAssertionsRemoved());
         task.getOptimizationLevel().convention(options.getOptimizationLevel());
     }
 
@@ -234,11 +233,10 @@ public class TeavmPlugin implements Plugin<Project> {
                     .stream().filter(art -> "teavm-classlib".equals(art.getName()))
                     .findFirst();
             if (tvm.isPresent()) {
-                final Properties props = FsUtils.readMavenProperties(tvm.get().getFile(),
-                        "META-INF/maven/org.teavm/teavm-classlib/pom.properties");
-                if (props != null) {
-                    version = props.getProperty("version");
-                }
+                // teavm-classlib-0.N.0-dev-M.jar
+                version = tvm.get().getFile().getName()
+                        .replace(".jar", "")
+                        .replace("teavm-classlib-", "");
                 break;
             }
         }

@@ -1,8 +1,8 @@
 package ru.vyarus.gradle.plugin.teavm.task;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.io.FileUtils;
 import org.gradle.workers.WorkAction;
-import org.teavm.apachecommons.io.FileUtils;
 import org.teavm.tooling.TeaVMProblemRenderer;
 import org.teavm.tooling.TeaVMToolLog;
 import org.teavm.tooling.builder.BuildResult;
@@ -86,7 +86,7 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
         build.setMinHeapSize(getParameters().getMinHeapSize().get() * 1024 * 1024);
         build.setMaxHeapSize(getParameters().getMaxHeapSize().get() * 1024 * 1024);
         build.setShortFileNames(getParameters().getShortFileNames().get());
-        //build.setAssertionsRemoved(assertionsRemoved);
+        build.setAssertionsRemoved(getParameters().getAssertionsRemoved().get());
 
 
         build.setMainClass(getParameters().getMainClass().get());

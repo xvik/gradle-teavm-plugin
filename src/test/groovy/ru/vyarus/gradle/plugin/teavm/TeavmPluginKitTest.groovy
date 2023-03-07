@@ -55,6 +55,7 @@ public class Main {
             
             dependencies {
                 implementation "org.teavm:teavm-classlib:\${teavm.version}"
+                implementation "org.teavm:teavm-metaprogramming-api:\${teavm.version}"
                 implementation "org.teavm:teavm-metaprogramming-impl:\${teavm.version}"
             }
 
@@ -112,6 +113,7 @@ public class Main {
             
             dependencies {
                 implementation "org.teavm:teavm-classlib:\${teavm.version}"
+                implementation "org.teavm:teavm-metaprogramming-api:\${teavm.version}"
                 implementation "org.teavm:teavm-metaprogramming-impl:\${teavm.version}"
             }
 
