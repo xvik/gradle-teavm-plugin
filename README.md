@@ -9,6 +9,12 @@
 Gradle [TeaVM](https://teavm.org/) plugin: java/kotlin/scala compilation to JS or WASM.
 In contrast to [GWT](https://www.gwtproject.org/), teavm works with compiled bytecode (sources not required for compilation).
 
+**Unofficial** gradle plugin. Differences with [official teavm plugin](https://teavm.org/docs/tooling/gradle.html):
+- Single `teavmCompile` task and single configuration (instead of per type (js/wasm/etc.) configurations)
+- Dev mode support (easy switching to dev configuration)
+- Configurable compiler version (official plugin release together with teavm and so targets exact version, while this plugin detects version from classpath)
+- No tests support
+
 Features:
 * Automatic teavm compiler version selection
 * Dev mode support
@@ -26,7 +32,7 @@ Features:
 
 ```groovy
 plugins {
-    id 'ru.vyarus.teavm' version '1.0.1'
+    id 'ru.vyarus.teavm' version '1.1.0'
 }
 ```
 
@@ -38,7 +44,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'ru.vyarus:gradle-teavm-plugin:1.0.1'
+        classpath 'ru.vyarus:gradle-teavm-plugin:1.1.0'
     }
 }
 apply plugin: 'ru.vyarus.teavm'
@@ -50,7 +56,7 @@ NOTE: Java 11 or above is required (teavm compiled for java 11).
 
 Gradle | Version
 --------|-------
-6.2-7   | 1.0.1
+6.2-8   | 1.1.0
 
 ### Usage
 
@@ -63,12 +69,12 @@ Example projects:
 
 ####  TeaVM dependencies
 
-IMPORTANT: TeaVM release 0.7.0 (the latest published in maven central) is pretty old, but there are dev versions 
-published into special repository. It is highly advised to use the most recent version:
+TeaVM often publish fresh [dev versions](https://teavm.org/docs/intro/preview-builds.html) into separate repository. 
+If you want to use dev build instead of release version, add custom repository:
 
 ```groovy
 ext {
-  teavm = '0.7.0-dev-1209'
+  teavm = '0.8.0-dev-2'
 }
 repositories { 
   mavenCentral()
@@ -290,6 +296,10 @@ to declare custom plugins repository:
      * {@link #optimizationLevel} setting).
      */
     fastDependencyAnalysis = false
+    /**
+     * Remove assertions.
+     */
+    assertionsRemoved = false        
 
     /**
      * Top-level names limit. ONLY for JS target.
@@ -346,6 +356,7 @@ teavm {
     debugInformationGenerated = true
     sourceMapsGenerated = true
     fastDependencyAnalysis = false
+    assertionsRemoved = false
     optimizationLevel = SIMPLE
     
     // C target ONLY
@@ -451,7 +462,8 @@ Options list:
   shortFileNames =
   longjmpSupported = 
   heapDump =
-  fastDependencyAnalysis = 
+  fastDependencyAnalysis =
+  assertionsRemoved =        
   maxTopLevelNames =
   minHeapSize =
   maxHeapSize =
