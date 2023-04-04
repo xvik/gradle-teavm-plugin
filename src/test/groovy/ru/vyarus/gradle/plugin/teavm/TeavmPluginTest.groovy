@@ -62,11 +62,11 @@ class TeavmPluginTest extends AbstractTest {
 
         task.getClassPath().get().collect { project.relativePath(it.asFile).replace(File.separator, '/')} as Set == [
                 'build/classes/java/main', 'build/resources/main', 'build/classes/foo'] as Set
-        task.dependencies.files.collect { it.getName()}.contains('teavm-classlib-0.8.0.jar')
+        task.dependencies.files.collect { it.getName()}.contains('teavm-classlib-0.8.1.jar')
 
         task.getSources().get().collect { project.relativePath(it.asFile).replace(File.separator, '/')} as Set == [
                 'src/main/java', 'src/main/resources', 'src/foo/java'] as Set
-        task.sourceDependencies.files.collect { it.getName()}.contains('teavm-classlib-0.8.0-sources.jar')
+        task.sourceDependencies.files.collect { it.getName()}.contains('teavm-classlib-0.8.1-sources.jar')
 
         project.relativePath(task.getTargetDir().get().asFile).replace(File.separator, '/') == 'build/teavm'
         project.relativePath(task.getCacheDir().get().asFile).replace(File.separator, '/') == 'build/teavm-cache'

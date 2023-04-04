@@ -96,7 +96,7 @@ public class Main {
 
         then: "task successful"
         result.task(':compileTeavm').outcome == TaskOutcome.SUCCESS
-        result.output.contains('TeaVM compiler version: 0.8.0')
+        result.output.contains('TeaVM compiler version: 0.8.1')
         result.output.contains('Output file successfully built')
     }
 }
