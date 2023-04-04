@@ -56,7 +56,7 @@ public class TeavmExtension extends DevOptions {
     /**
      * Teavm version to use. Ignored when {@link #autoVersion} enabled.
      */
-    private String version = "0.8.0";
+    private String version = "0.8.1";
 
     /**
      * Source sets to compile js from. By default, java, kotlin and scala supported.
