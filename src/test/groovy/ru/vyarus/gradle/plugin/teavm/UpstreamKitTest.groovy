@@ -10,9 +10,9 @@ import org.gradle.testkit.runner.TaskOutcome
  */
 class UpstreamKitTest extends AbstractKitTest {
 
-    String GRADLE_VERSION = '8.0'
+    String GRADLE_VERSION = '8.1.1'
     // https://teavm.org/maven/repository/org/teavm/teavm-classlib/
-    String TEAVM_RECENT = '0.8.0-dev-2'
+    String TEAVM_RECENT = '0.9.0-dev-6'
 
     def "Check plugin execution for the latest gradle"() {
         setup:
