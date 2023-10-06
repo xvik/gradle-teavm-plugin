@@ -91,6 +91,9 @@ You can check the latest published dev build [directly in repository](https://te
 NOTE: [flavour](https://teavm.org/docs/flavour/templates.html) is not currently maintained and
 its dev builds are not published (so you can use only the latest released 0.2.1)
 
+Maintained flavour **fork**: [site](https://flavour.sourceforge.io/), [flavour docs](https://frequal.com/teavm-site/docs/flavour/templates.html) (removed from teavm site), 
+[source](https://sourceforge.net/projects/flavour/)
+
 #### Plugin configuration
 
 The only required configuration is entry point main class:
