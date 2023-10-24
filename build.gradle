@@ -26,7 +26,7 @@ dependencies {
 
     // compiled with this version, and this version used at runtime to support enums, but compiler could be executed
     // with different version
-    implementation 'org.teavm:teavm-core:0.8.1'
+    implementation 'org.teavm:teavm-core:0.9.0'
     implementation 'org.teavm:teavm-classlib:0.8.1'
     implementation 'org.teavm:teavm-tooling:0.8.1'
 
