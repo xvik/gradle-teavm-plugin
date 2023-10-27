@@ -15,7 +15,6 @@ import ru.vyarus.gradle.plugin.teavm.util.DurationFormatter;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,7 +39,7 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
     @Override
     public void execute() {
         // order follows org/teavm/maven/TeaVMCompileMojo.java
-        final BuildStrategy build = new InProcessBuildStrategy(URLClassLoader::new);
+        final BuildStrategy build = new InProcessBuildStrategy();
         configure(build);
 
         build.setProgressListener(new LogListener());
@@ -101,7 +100,6 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
         build.setCacheDirectory(getParameters().getCacheDirectory().get().getAsFile().getAbsolutePath());
         build.setTargetType(getParameters().getTargetType().get());
         build.setWasmVersion(getParameters().getWasmVersion().get());
-        build.setLongjmpSupported(getParameters().getLongjmpSupported().get());
         build.setHeapDump(getParameters().getHeapDump().get());
     }
 
@@ -167,7 +165,7 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
                 phaseDone();
             }
             currentPhase = phase;
-            target = maxSteps;
+            target = maxSteps == 0 ? 1 : maxSteps;
             timer = System.currentTimeMillis();
             return TeaVMProgressFeedback.CONTINUE;
         }

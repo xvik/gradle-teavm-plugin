@@ -38,10 +38,6 @@ public class DevOptions {
      */
     private boolean shortFileNames = false;
     /**
-     * Long jmp. ONLY for C target.
-     */
-    private boolean longjmpSupported = true;
-    /**
      * Heap dump. ONLY for C target.
      */
     private boolean heapDump = false;
@@ -125,14 +121,6 @@ public class DevOptions {
 
     public void setShortFileNames(final boolean shortFileNames) {
         this.shortFileNames = shortFileNames;
-    }
-
-    public boolean isLongjmpSupported() {
-        return longjmpSupported;
-    }
-
-    public void setLongjmpSupported(final boolean longjmpSupported) {
-        this.longjmpSupported = longjmpSupported;
     }
 
     public boolean isHeapDump() {

@@ -171,12 +171,6 @@ public abstract class TeavmCompileTask extends DefaultTask {
     public abstract Property<Boolean> getShortFileNames();
 
     /**
-     * @return true for long jmp (C only)
-     */
-    @Input
-    public abstract Property<Boolean> getLongjmpSupported();
-
-    /**
      * @return true for heap dump (C only)
      */
     @Input
@@ -305,7 +299,6 @@ public abstract class TeavmCompileTask extends DefaultTask {
             parameters.getDebugInformationGenerated().set(getDebugInformationGenerated());
             parameters.getSourceMapsFileGenerated().set(getSourceMapsGenerated());
             parameters.getShortFileNames().set(getShortFileNames());
-            parameters.getLongjmpSupported().set(getLongjmpSupported());
             parameters.getHeapDump().set(getHeapDump());
             parameters.getFastDependencyAnalysis().set(getFastDependencyAnalysis());
             parameters.getAssertionsRemoved().set(getAssertionsRemoved());

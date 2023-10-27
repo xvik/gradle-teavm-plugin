@@ -54,6 +54,13 @@ import static ru.vyarus.gradle.plugin.teavm.util.FsUtils.dir;
 @SuppressWarnings("PMD.SystemPrintln")
 @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
 public class TeavmPlugin implements Plugin<Project> {
+
+    /**
+     * Property stored in project extensions container, indicating actually used compiler version.
+     * Usage: {@code project.getExtensions().getExtraProperties().get(TEAVM_VERSION)}.
+     */
+    public static final String TEAVM_VERSION = "__TEAVM_VERSION";
+
     @Override
     public void apply(final Project project) {
         final TeavmExtension extension = project.getExtensions().create("teavm", TeavmExtension.class, project);
@@ -97,6 +104,7 @@ public class TeavmPlugin implements Plugin<Project> {
                 dependencies.add(project.getDependencies().create("org.teavm:teavm-core:" + version));
                 dependencies.add(project.getDependencies().create("org.teavm:teavm-classlib:" + version));
                 dependencies.add(project.getDependencies().create("org.teavm:teavm-tooling:" + version));
+                project.getExtensions().getExtraProperties().set(TEAVM_VERSION, version);
             });
         });
     }
@@ -185,7 +193,6 @@ public class TeavmPlugin implements Plugin<Project> {
         task.getDebugInformationGenerated().convention(options.isDebugInformationGenerated());
         task.getSourceMapsGenerated().convention(options.isSourceMapsGenerated());
         task.getShortFileNames().convention(options.isShortFileNames());
-        task.getLongjmpSupported().convention(options.isLongjmpSupported());
         task.getHeapDump().convention(options.isHeapDump());
         task.getFastDependencyAnalysis().convention(options.isFastDependencyAnalysis());
         task.getAssertionsRemoved().convention(options.isAssertionsRemoved());

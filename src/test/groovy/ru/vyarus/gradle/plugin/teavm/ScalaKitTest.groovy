@@ -20,7 +20,7 @@ class ScalaKitTest extends AbstractKitTest {
             
             repositories { mavenCentral() }
             dependencies {
-                implementation 'org.scala-lang:scala-library:2.13.3'
+                implementation 'org.scala-lang:scala-library:2.13.11'
             
                 implementation "org.teavm:teavm-classlib:\${teavm.version}"
                 implementation "org.teavm:teavm-jso:\${teavm.version}"
@@ -39,7 +39,7 @@ import org.teavm.jso.dom.events._
 import org.teavm.jso.dom.html._
 
 object Client {
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
       val doc = HTMLDocument.current
 
       doc.getElementById("hello-scala").listenClick((e: MouseEvent) => { Window.alert("Hello, developer!") })

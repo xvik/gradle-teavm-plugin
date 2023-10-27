@@ -176,7 +176,7 @@ to declare custom plugins repository:
 ```groovy
 {
     /**
-     * Enables dev mode: use options from {@link #devOptions} configuration.
+     * Enables dev mode: use options from "devOptions" configuration.
      */
     dev = false
     /**
@@ -189,34 +189,34 @@ to declare custom plugins repository:
      */
     mixedResources = false
     /**
-     * Detect teavm version from classpath ({@link #configurations}) in order to use the same version for compilation.
-     * When enabled, {@link #version} option is ignored.
+     * Detect teavm version from classpath (see "configurations") in order to use the same version for compilation.
+     * When enabled, "version" option is ignored.
      */
     autoVersion = true
     /**
-     * Teavm version to use. Ignored when {@link #autoVersion} enabled.
+     * Teavm version to use. Ignored when "autoVersion" enabled.
      */
     version = "0.8.0"
 
     /**
      * Source sets to compile js from. By default, java, kotlin and scala supported.
      */
-    sourceSets = [main", "kotlin", "scala"]
+    sourceSets = ["main", "kotlin", "scala"]
     /**
      * Configurations with required dependencies (by default, runtimeClasspath). There is no alternative for direct
      * dependency jars specification - local jar files could always be configured in configuration.
      */
     configurations = ["runtimeClasspath"]
     /**
-     * Additional directories with compiled classes. Normally, this should not be needed as {@link #sourceSets}
+     * Additional directories with compiled classes. Normally, this should not be needed as "sourceSets"
      * already describe required directories. Could be useful only for specific cases.
      * Values: strings with absolute or relative directories locations. 
      */
     extraClassDirs = []
     /**
-     * Additional source directories (used only when {@link #sourceFilesCopied} enabled). Normally, this should not
-     * be needed as sources already descibed with {@link #sourceSets} and dependencies sources are resolved
-     * from {@link #configurations}.
+     * Additional source directories (used only when "sourceFilesCopied" enabled). Normally, this should not
+     * be needed as sources already described with "sourceSets" and dependencies sources are resolved
+     * from "configurations".
      * All jars contained in configured directories (1st level) would be also added.
      * Values: strings with absolute or relative directories locations. 
      */
@@ -239,8 +239,8 @@ to declare custom plugins repository:
      */
     entryPointName = "main"
     /**
-     * Output file name. By default, empty to let teavm automaticlly select file name by compilation target:
-     * classes.js, classes.wasm, etc. ({@link  org.teavm.tooling.TeaVMTool#getResolvedTargetFileName()}).
+     * Output file name. By default, empty to let teavm automatically select file name by compilation target:
+     * classes.js, classes.wasm, etc. (see org.teavm.tooling.TeaVMTool#getResolvedTargetFileName()).
      */
     targetFileName = ""
     /**
@@ -266,7 +266,7 @@ to declare custom plugins repository:
     strict = false
     /**
      * Copy java sources into generated folder so they could be loaded in browser through source maps (see
-     * {@link #sourceMapsGenerated}).
+     * "sourceMapsGenerated").
      */
     sourceFilesCopied = false
     /**
@@ -279,7 +279,7 @@ to declare custom plugins repository:
      */
     debugInformationGenerated = false
     /**
-     * Generate source maps. In oder to be able to debug sources in browser enable {@link #sourceFilesCopied}.
+     * Generate source maps. In oder to be able to debug sources in browser enable "sourceFilesCopied".
      */
     sourceMapsGenerated = false
     /**
@@ -287,16 +287,12 @@ to declare custom plugins repository:
      */
     shortFileNames = false
     /**
-     * Long jmp. ONLY for C target.
-     */
-    longjmpSupported = true
-    /**
      * Heap dump. ONLY for C target.
      */
     heapDump = false
     /**
      * Fast dependency analysis. Probably, could speed up compilation. ONLY for development! (option disables
-     * {@link #optimizationLevel} setting).
+     * "optimizationLevel" setting).
      */
     fastDependencyAnalysis = false
     /**
@@ -326,7 +322,7 @@ to declare custom plugins repository:
     optimizationLevel = ADVANCED
     /**
      * An array of fully qualified class names. Each class must implement
-     * {@link org.teavm.model.ClassHolderTransformer} interface and have a public no-argument constructor. These
+     * "org.teavm.model.ClassHolderTransformer" interface and have a public no-argument constructor. These
      * transformers are used to transform ClassHolders, that are SSA-based representation of JVM classes. Transformers
      * run right after parsing JVM classes and producing SSA representation.
      */
@@ -364,7 +360,6 @@ teavm {
     
     // C target ONLY
     shortFileNames = false
-    longjmpSupported = true
     heapDump = false
   }
 }
@@ -463,7 +458,6 @@ Options list:
   debugInformationGenerated =   
   sourceMapsGenerated =  
   shortFileNames =
-  longjmpSupported = 
   heapDump =
   fastDependencyAnalysis =
   assertionsRemoved =        

@@ -120,11 +120,6 @@ public interface CompileParameters extends WorkParameters {
     Property<Boolean> getShortFileNames();
 
     /**
-     * @return true for long jmp (C target)
-     */
-    Property<Boolean> getLongjmpSupported();
-
-    /**
      * @return true for heap dump (C target)
      */
     Property<Boolean> getHeapDump();

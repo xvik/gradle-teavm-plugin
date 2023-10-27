@@ -2,11 +2,13 @@ package ru.vyarus.gradle.plugin.teavm
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
+import spock.lang.Ignore
 
 /**
  * @author Vyacheslav Rusakov
  * @since 12.01.2023
  */
+@Ignore // flavour not compatible with teavm 0.9 (possibly fork would be someday)
 class ResourcesCopyKitTest extends AbstractKitTest {
 
     def "Check mixed resources support"() {
