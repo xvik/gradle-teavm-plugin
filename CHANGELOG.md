@@ -1,3 +1,4 @@
+### 1.2.0 (2023-10-29)
 * Update to teavm 0.9.0
     - Removed longjmpSupported option
 

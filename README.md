@@ -32,7 +32,7 @@ Features:
 
 ```groovy
 plugins {
-    id 'ru.vyarus.teavm' version '1.1.0'
+    id 'ru.vyarus.teavm' version '1.2.0'
 }
 ```
 
@@ -44,7 +44,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'ru.vyarus:gradle-teavm-plugin:1.1.0'
+        classpath 'ru.vyarus:gradle-teavm-plugin:1.2.0'
     }
 }
 apply plugin: 'ru.vyarus.teavm'
@@ -56,14 +56,13 @@ NOTE: Java 11 or above is required (teavm compiled for java 11).
 
 Gradle | Version
 --------|-------
-6.2-8   | 1.1.0
+6.2-8   | 1.2.0
 
 ### Usage
 
 Example projects:
 
 * [Java](examples/java)
-* [Flavour](examples/flavour)
 * [Kotlin](examples/kotlin)
 * [Scala](examples/scala)
 
@@ -74,7 +73,7 @@ If you want to use dev build instead of release version, add custom repository:
 
 ```groovy
 ext {
-  teavm = '0.8.0-dev-2'
+  teavm = '0.9.0-dev-15'
 }
 repositories { 
   mavenCentral()
@@ -82,17 +81,22 @@ repositories {
 }
 dependencies {
     implementation "org.teavm:teavm-classlib:$teavm"
-    implementation "org.teavm:teavm-jso:$teavm"
+    implementation "org.teavm:teavm-jso-apis:$teavm"
 }
 ```
 
-You can check the latest published dev build [directly in repository](https://teavm.org/maven/repository/org/teavm/teavm-core/) 
+You can check the latest published dev build [directly in repository](https://teavm.org/maven/repository/org/teavm/teavm-core/)
+
+#### Flavour
 
 NOTE: [flavour](https://github.com/konsoletyper/teavm-flavour) is not currently maintained and
-its dev builds are not published (so you can use only the latest released 0.2.1)
+its dev builds are not published (so you can use only the latest released 0.2.1).
+Current flavour is *not compatible* with teavm 0.9
 
-Maintained flavour **fork**: [site](https://flavour.sourceforge.io/), [flavour docs](https://frequal.com/teavm-site/docs/flavour/templates.html) (removed from teavm site), 
-[source](https://sourceforge.net/projects/flavour/)
+* [Flavour example](examples/flavour) *for teavm 0.8
+
+Maintained flavour **fork**: [site](https://flavour.sourceforge.io/), [flavour docs](https://frequal.com/teavm-site/docs/flavour/templates.html) (removed from teavm site),
+[source](https://sourceforge.net/projects/flavour/) (still not yet compatible with 0.9)
 
 #### Plugin configuration
 
@@ -196,7 +200,7 @@ to declare custom plugins repository:
     /**
      * Teavm version to use. Ignored when "autoVersion" enabled.
      */
-    version = "0.8.0"
+    version = "0.9.0"
 
     /**
      * Source sets to compile js from. By default, java, kotlin and scala supported.
@@ -487,7 +491,7 @@ tasks.register('myTeavm', TeavmCompileTask) {
 }
 ```
 
-For more inof about working with gradle properties see [gradle docs](https://docs.gradle.org/current/userguide/lazy_configuration.html#working_with_task_dependencies_in_lazy_properties)
+For more info about working with gradle properties see [gradle docs](https://docs.gradle.org/current/userguide/lazy_configuration.html#working_with_task_dependencies_in_lazy_properties)
 
 All teavm tasks would depend on `classes` task to compile java/kotlin/scala and process resources
 before teavm start.
