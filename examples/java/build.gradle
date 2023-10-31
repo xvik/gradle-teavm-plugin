@@ -4,7 +4,7 @@ plugins {
 }
 
 ext {
-    teavm = '0.8.0'
+    teavm = '0.9.0'
 }
 
 repositories {
@@ -13,7 +13,7 @@ repositories {
 
 dependencies {
     implementation "org.teavm:teavm-classlib:$teavm"
-    implementation "org.teavm:teavm-jso:$teavm"
+    implementation "org.teavm:teavm-jso-apis:$teavm"
 
     testImplementation "junit:junit:4.13.2"
     testImplementation "org.teavm:teavm-junit:$teavm"

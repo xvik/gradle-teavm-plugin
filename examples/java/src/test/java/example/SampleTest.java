@@ -5,14 +5,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.teavm.junit.SkipJVM;
 import org.teavm.junit.TeaVMTestRunner;
-import org.teavm.junit.WholeClassCompilation;
 
 /**
  * @author Vyacheslav Rusakov
  * @since 07.03.2023
  */
 @RunWith(TeaVMTestRunner.class)
-@WholeClassCompilation
 @SkipJVM
 public class SampleTest {
 

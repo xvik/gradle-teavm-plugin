@@ -8,9 +8,10 @@ import org.teavm.jso.dom.html._
  * https://github.com/konsoletyper/teavm/tree/master/samples/scala
  */
 object Client {
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
       val doc = HTMLDocument.current
 
-      doc.getElementById("hello-scala").listenClick((e: MouseEvent) => { Window.alert("Hello, developer!") })
+      doc.getElementById("hello-scala")
+        .listenClick((e: MouseEvent) => { Window.alert("Hello, developer!") })
   }
 }

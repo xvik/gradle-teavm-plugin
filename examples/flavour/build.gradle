@@ -4,6 +4,7 @@ plugins {
 }
 
 ext {
+    // not compatible with teavm 0.9!
     teavm = '0.8.0'
     flavour = '0.2.1'
 }
