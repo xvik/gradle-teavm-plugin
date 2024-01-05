@@ -21,6 +21,11 @@ public class DevOptions {
      */
     private boolean sourceFilesCopied = false;
     /**
+     * Put links to local source files instead of copying them. Do nothing when {@link #sourceFilesCopied} disabled.
+     * Make sense only for local development.
+     */
+    private boolean sourceFilesCopiedAsLocalLinks = false;
+    /**
      * Incremental compilation speeds up compilation, but limits some optimizations and so should be used only
      * in dev mode.
      */
@@ -89,6 +94,14 @@ public class DevOptions {
 
     public void setSourceFilesCopied(final boolean sourceFilesCopied) {
         this.sourceFilesCopied = sourceFilesCopied;
+    }
+
+    public boolean isSourceFilesCopiedAsLocalLinks() {
+        return sourceFilesCopiedAsLocalLinks;
+    }
+
+    public void setSourceFilesCopiedAsLocalLinks(final boolean sourceFilesCopiedAsLocalLinks) {
+        this.sourceFilesCopiedAsLocalLinks = sourceFilesCopiedAsLocalLinks;
     }
 
     public boolean isIncremental() {

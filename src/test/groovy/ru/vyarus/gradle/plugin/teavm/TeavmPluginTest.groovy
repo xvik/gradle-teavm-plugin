@@ -2,6 +2,7 @@ package ru.vyarus.gradle.plugin.teavm
 
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
+import org.teavm.backend.javascript.JSModuleType
 import org.teavm.backend.wasm.render.WasmBinaryVersion
 import org.teavm.tooling.TeaVMTargetType
 import org.teavm.vm.TeaVMOptimizationLevel
@@ -48,8 +49,10 @@ class TeavmPluginTest extends AbstractTest {
 
                 mainClass = 'com.foo.Client'
                 sourceFilesCopied = true
+                sourceFilesCopiedAsLocalLinks = true
                 targetFileName = 'classes.js'
                 targetType = TeaVMTargetType.WEBASSEMBLY
+                jsModuleType = JSModuleType.ES2015
                 classesToPreserve = ['com.foo.Some']
                 transformers = ['com.bar.Other']
                 properties = ['foo': 'bar']
@@ -62,11 +65,11 @@ class TeavmPluginTest extends AbstractTest {
 
         task.getClassPath().get().collect { project.relativePath(it.asFile).replace(File.separator, '/')} as Set == [
                 'build/classes/java/main', 'build/resources/main', 'build/classes/foo'] as Set
-        task.dependencies.files.collect { it.getName()}.contains('teavm-classlib-0.9.0.jar')
+        task.dependencies.files.collect { it.getName()}.contains('teavm-classlib-0.9.1.jar')
 
         task.getSources().get().collect { project.relativePath(it.asFile).replace(File.separator, '/')} as Set == [
                 'src/main/java', 'src/main/resources', 'src/foo/java'] as Set
-        task.sourceDependencies.files.collect { it.getName()}.contains('teavm-classlib-0.9.0-sources.jar')
+        task.sourceDependencies.files.collect { it.getName()}.contains('teavm-classlib-0.9.1-sources.jar')
 
         project.relativePath(task.getTargetDir().get().asFile).replace(File.separator, '/') == 'build/teavm'
         project.relativePath(task.getCacheDir().get().asFile).replace(File.separator, '/') == 'build/teavm-cache'
@@ -75,9 +78,9 @@ class TeavmPluginTest extends AbstractTest {
         task.entryPointName.get() == 'main'
         task.targetFileName.get() == 'classes.js'
         task.targetType.get() == TeaVMTargetType.WEBASSEMBLY
+        task.jsModuleType.get() == JSModuleType.ES2015
         task.wasmVersion.get() == WasmBinaryVersion.V_0x1
         task.stopOnErrors.get() == true
-        task.maxTopLevelNames.get() == 10000
         task.minHeapSize.get() == 4
         task.maxHeapSize.get() == 128
         task.transformers.get() == ['com.bar.Other']
@@ -116,6 +119,7 @@ class TeavmPluginTest extends AbstractTest {
                 obfuscated = true
                 strict = true
                 sourceFilesCopied = false
+                sourceFilesCopiedAsLocalLinks = false
                 incremental = false
                 debugInformationGenerated = false
                 sourceMapsGenerated = false
@@ -131,6 +135,7 @@ class TeavmPluginTest extends AbstractTest {
                     obfuscated = false
                     strict = false
                     sourceFilesCopied = true
+                    sourceFilesCopiedAsLocalLinks = true
                     incremental = true
                     debugInformationGenerated = true
                     sourceMapsGenerated = true
@@ -150,6 +155,8 @@ class TeavmPluginTest extends AbstractTest {
 
         !task.obfuscated.get()
         !task.strict.get()
+        task.getSourceFilesCopied().get()
+        task.getSourceFilesCopiedAsLocalLinks().get()
         task.incremental.get()
         task.debugInformationGenerated.get()
         task.sourceMapsGenerated.get()

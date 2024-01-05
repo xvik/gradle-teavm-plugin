@@ -9,6 +9,7 @@ import org.gradle.api.attributes.Usage;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.language.jvm.tasks.ProcessResources;
+import org.teavm.backend.javascript.JSModuleType;
 import org.teavm.backend.wasm.render.WasmBinaryVersion;
 import org.teavm.tooling.TeaVMTargetType;
 import org.teavm.vm.TeaVMOptimizationLevel;
@@ -124,6 +125,7 @@ public class TeavmPlugin implements Plugin<Project> {
         Arrays.asList(TeaVMTargetType.values()).forEach(type -> extraProps.set(type.name(), type));
         Arrays.asList(WasmBinaryVersion.values()).forEach(type -> extraProps.set(type.name(), type));
         Arrays.asList(TeaVMOptimizationLevel.values()).forEach(type -> extraProps.set(type.name(), type));
+        Arrays.asList(JSModuleType.values()).forEach(type -> extraProps.set(type.name(), type));
     }
 
     /**
@@ -166,12 +168,12 @@ public class TeavmPlugin implements Plugin<Project> {
             task.getEntryPointName().convention(extension.getEntryPointName());
             task.getTargetFileName().convention(extension.getTargetFileName());
             task.getTargetType().convention(extension.getTargetType());
+            task.getJsModuleType().convention(extension.getJsModuleType());
             task.getWasmVersion().convention(extension.getWasmVersion());
 
             task.getStopOnErrors().convention(extension.isStopOnErrors());
             configureDevOptions(task, options);
 
-            task.getMaxTopLevelNames().convention(extension.getMaxTopLevelNames());
             task.getMinHeapSize().convention(extension.getMinHeapSize());
             task.getMaxHeapSize().convention(extension.getMaxHeapSize());
             task.getTransformers().convention(extension.getTransformers());
@@ -189,6 +191,7 @@ public class TeavmPlugin implements Plugin<Project> {
         task.getObfuscated().convention(options.isObfuscated());
         task.getStrict().convention(options.isStrict());
         task.getSourceFilesCopied().convention(options.isSourceFilesCopied());
+        task.getSourceFilesCopiedAsLocalLinks().convention(options.isSourceFilesCopiedAsLocalLinks());
         task.getIncremental().convention(options.isIncremental());
         task.getDebugInformationGenerated().convention(options.isDebugInformationGenerated());
         task.getSourceMapsGenerated().convention(options.isSourceMapsGenerated());

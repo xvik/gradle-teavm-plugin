@@ -4,6 +4,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.FileUtils;
 import org.gradle.workers.WorkAction;
 import org.teavm.tooling.TeaVMProblemRenderer;
+import org.teavm.tooling.TeaVMSourceFilePolicy;
 import org.teavm.tooling.TeaVMToolLog;
 import org.teavm.tooling.builder.BuildResult;
 import org.teavm.tooling.builder.BuildStrategy;
@@ -60,18 +61,20 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
         build.setClassPathEntries(getParameters().getClassPathEntries().get());
         build.setObfuscated(getParameters().getObfuscated().get());
         build.setStrict(getParameters().getStrict().get());
-        build.setMaxTopLevelNames(getParameters().getMaxTopLevelNames().get());
         build.setTargetDirectory(getParameters().getTargetDirectory().get().getAsFile().getAbsolutePath());
 
         if (getParameters().getTransformers().isPresent()) {
             build.setTransformers(getParameters().getTransformers().get().toArray(new String[]{}));
         }
         if (getParameters().getSourceFilesCopied().get()) {
-            build.setSourceFilesCopied(true);
+            build.setSourceFilePolicy(getParameters().getSourceFilesCopiedAsLocalLinks().get()
+                    ? TeaVMSourceFilePolicy.LINK_LOCAL_FILES : TeaVMSourceFilePolicy.COPY);
             getParameters().getSourceDirectories().get().forEach(directory ->
                     build.addSourcesDirectory(directory.getAsFile().getAbsolutePath()));
             getParameters().getSourceJars().get().forEach(jar ->
                     build.addSourcesJar(jar.getAbsolutePath()));
+        } else {
+            build.setSourceFilePolicy(TeaVMSourceFilePolicy.DO_NOTHING);
         }
 
         if (getParameters().getProperties().isPresent()) {
@@ -99,6 +102,7 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
         }
         build.setCacheDirectory(getParameters().getCacheDirectory().get().getAsFile().getAbsolutePath());
         build.setTargetType(getParameters().getTargetType().get());
+        build.setJsModuleType(getParameters().getJsModuleType().get());
         build.setWasmVersion(getParameters().getWasmVersion().get());
         build.setHeapDump(getParameters().getHeapDump().get());
     }

@@ -21,6 +21,7 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.workers.WorkQueue;
 import org.gradle.workers.WorkerExecutor;
+import org.teavm.backend.javascript.JSModuleType;
 import org.teavm.backend.wasm.render.WasmBinaryVersion;
 import org.teavm.tooling.TeaVMTargetType;
 import org.teavm.vm.TeaVMOptimizationLevel;
@@ -117,6 +118,12 @@ public abstract class TeavmCompileTask extends DefaultTask {
     public abstract Property<TeaVMTargetType> getTargetType();
 
     /**
+     * @return compiled js module type
+     */
+    @Input
+    public abstract Property<JSModuleType> getJsModuleType();
+
+    /**
      * @return wasm version (if wasm target used)
      */
     @Input
@@ -145,6 +152,12 @@ public abstract class TeavmCompileTask extends DefaultTask {
      */
     @Input
     public abstract Property<Boolean> getSourceFilesCopied();
+
+    /**
+     * @return true to put links to local files instead of copying source files ({@link #getSourceFilesCopied()})
+     */
+    @Input
+    public abstract Property<Boolean> getSourceFilesCopiedAsLocalLinks();
 
     /**
      * @return true to enable incremental compilation
@@ -189,12 +202,6 @@ public abstract class TeavmCompileTask extends DefaultTask {
      */
     @Input
     public abstract Property<Boolean> getAssertionsRemoved();
-
-    /**
-     * @return max top level names (JS target only)
-     */
-    @Input
-    public abstract Property<Integer> getMaxTopLevelNames();
 
     /**
      * @return min heap size (WASM and C targets)
@@ -290,11 +297,13 @@ public abstract class TeavmCompileTask extends DefaultTask {
             parameters.getEntryPointName().set(getEntryPointName());
             parameters.getTargetFileName().set(getTargetFileName());
             parameters.getTargetType().set(getTargetType());
+            parameters.getJsModuleType().set(getJsModuleType());
             parameters.getWasmVersion().set(getWasmVersion());
 
             parameters.getObfuscated().set(getObfuscated());
             parameters.getStrict().set(getStrict());
             parameters.getSourceFilesCopied().set(getSourceFilesCopied());
+            parameters.getSourceFilesCopiedAsLocalLinks().set(getSourceFilesCopiedAsLocalLinks());
             parameters.getIncremental().set(getIncremental());
             parameters.getDebugInformationGenerated().set(getDebugInformationGenerated());
             parameters.getSourceMapsFileGenerated().set(getSourceMapsGenerated());
@@ -303,7 +312,6 @@ public abstract class TeavmCompileTask extends DefaultTask {
             parameters.getFastDependencyAnalysis().set(getFastDependencyAnalysis());
             parameters.getAssertionsRemoved().set(getAssertionsRemoved());
 
-            parameters.getMaxTopLevelNames().set(getMaxTopLevelNames());
             parameters.getMinHeapSize().set(getMinHeapSize());
             parameters.getMaxHeapSize().set(getMaxHeapSize());
             parameters.getOptimizationLevel().set(getOptimizationLevel());

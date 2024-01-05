@@ -3,6 +3,7 @@ package ru.vyarus.gradle.plugin.teavm;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Nested;
+import org.teavm.backend.javascript.JSModuleType;
 import org.teavm.backend.wasm.render.WasmBinaryVersion;
 import org.teavm.tooling.TeaVMTargetType;
 import org.teavm.vm.TeaVMOptimizationLevel;
@@ -56,7 +57,7 @@ public class TeavmExtension extends DevOptions {
     /**
      * Teavm version to use. Ignored when {@link #autoVersion} enabled.
      */
-    private String version = "0.9.0";
+    private String version = "0.9.1";
 
     /**
      * Source sets to compile js from. By default, java, kotlin and scala supported.
@@ -102,9 +103,13 @@ public class TeavmExtension extends DevOptions {
      */
     private String targetFileName = "";
     /**
-     * Compilation target: js by default. Values: JAVASCRIPT, WEBASSEMBLY, C
+     * Compilation target: js by default. Values: JAVASCRIPT, WEBASSEMBLY, WEBASSEMBLY_WASI, C
      */
     private TeaVMTargetType targetType = TeaVMTargetType.JAVASCRIPT;
+    /**
+     * Javascript module type: UMD by default. Values: COMMON_JS, UMD, NONE, ES2015
+     */
+    private JSModuleType jsModuleType = JSModuleType.UMD;
     /**
      * Target wasm version (only for compilation to WASM). Values: V_0x1
      */
@@ -115,10 +120,6 @@ public class TeavmExtension extends DevOptions {
      */
     private boolean stopOnErrors = true;
 
-    /**
-     * Top-level names limit. ONLY for JS target.
-     */
-    private int maxTopLevelNames = 10_000;
     /**
      * Minimal heap size (in mb). ONLY for WASM and C targets.
      */
@@ -159,6 +160,7 @@ public class TeavmExtension extends DevOptions {
         devOptions.setObfuscated(false);
         devOptions.setStrict(false);
         devOptions.setSourceFilesCopied(true);
+        devOptions.setSourceFilesCopiedAsLocalLinks(true);
         devOptions.setIncremental(false);
         devOptions.setDebugInformationGenerated(true);
         devOptions.setSourceMapsGenerated(true);
@@ -292,6 +294,14 @@ public class TeavmExtension extends DevOptions {
         this.targetType = targetType;
     }
 
+    public JSModuleType getJsModuleType() {
+        return jsModuleType;
+    }
+
+    public void setJsModuleType(final JSModuleType jsModuleType) {
+        this.jsModuleType = jsModuleType;
+    }
+
     public WasmBinaryVersion getWasmVersion() {
         return wasmVersion;
     }
@@ -306,14 +316,6 @@ public class TeavmExtension extends DevOptions {
 
     public void setStopOnErrors(final boolean stopOnErrors) {
         this.stopOnErrors = stopOnErrors;
-    }
-
-    public int getMaxTopLevelNames() {
-        return maxTopLevelNames;
-    }
-
-    public void setMaxTopLevelNames(final int maxTopLevelNames) {
-        this.maxTopLevelNames = maxTopLevelNames;
     }
 
     public int getMinHeapSize() {

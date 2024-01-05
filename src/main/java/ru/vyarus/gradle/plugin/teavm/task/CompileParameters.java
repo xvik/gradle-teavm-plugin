@@ -7,6 +7,7 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.workers.WorkParameters;
+import org.teavm.backend.javascript.JSModuleType;
 import org.teavm.backend.wasm.render.WasmBinaryVersion;
 import org.teavm.tooling.TeaVMTargetType;
 import org.teavm.vm.TeaVMOptimizationLevel;
@@ -80,6 +81,11 @@ public interface CompileParameters extends WorkParameters {
     Property<TeaVMTargetType> getTargetType();
 
     /**
+     * @return teavm produced js module type
+     */
+    Property<JSModuleType> getJsModuleType();
+
+    /**
      * @return wasm version
      */
     Property<WasmBinaryVersion> getWasmVersion();
@@ -98,6 +104,11 @@ public interface CompileParameters extends WorkParameters {
      * @return true to copy source files (required for browser debug with source maps)
      */
     Property<Boolean> getSourceFilesCopied();
+
+    /**
+     * @return true to put local file links instead of copying source files (for local development only)
+     */
+    Property<Boolean> getSourceFilesCopiedAsLocalLinks();
 
     /**
      * @return tue for incremental compilation
@@ -135,11 +146,6 @@ public interface CompileParameters extends WorkParameters {
      * @return true to remove assertions during compilation
      */
     Property<Boolean> getAssertionsRemoved();
-
-    /**
-     * @return max top level names (JS target only)
-     */
-    Property<Integer> getMaxTopLevelNames();
 
     /**
      * @return min heap size (WASM and C targets)

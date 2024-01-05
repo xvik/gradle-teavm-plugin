@@ -28,6 +28,7 @@ class DebugKitTest extends AbstractKitTest {
                 mainClass = 'example.Main'
                 extraClassDirs = ['build/classes/foo']
                 extraSourceDirs = ['src/foo/java']
+                sourceMapsGenerated = true
                 sourceFilesCopied = true
             }
 
@@ -67,12 +68,12 @@ Extra source directories:
 """)
         out.contains('Resolved source artifacts for configuration\'runtimeClasspath\':')
 
-        out.contains("""Resources used: 55
+        out.contains("""Resources used: 29
 \texample/Main.java
 """)
-        out.contains("""Generated files: 55
-\tclasses.js (40 KB)
- \tsrc/example/Main.java (134 bytes)
+        out.contains("""Generated files: 2
+\tclasses.js (12 KB)
+ \tclasses.js.map (2 KB)
 """)
     }
 }

@@ -26,6 +26,7 @@ class SourcesCopyKitTest extends AbstractKitTest {
                 debug = false
                 
                 mainClass = 'example.Main'
+                sourceMapsGenerated = true
                 sourceFilesCopied = true
             }
 
@@ -55,6 +56,54 @@ public class Main {
         file('build/teavm/src/org/teavm/classlib/impl/IntegerUtil.java').exists()
     }
 
+
+    def "Check sources copy with links"() {
+        setup:
+        build """
+            plugins {
+                id 'java'
+                id 'ru.vyarus.teavm'
+            }
+                       
+            repositories { mavenCentral() }
+            dependencies {
+                implementation "org.teavm:teavm-classlib:\${teavm.version}"
+            }
+
+            teavm {
+                debug = false
+                
+                mainClass = 'example.Main'
+                sourceMapsGenerated = true
+                sourceFilesCopied = true
+                sourceFilesCopiedAsLocalLinks = true
+            }
+
+        """
+        file('src/main/java/example/Main.java')  << """
+package example;
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Do nothing");
+    }
+}
+"""
+
+        when: "run task"
+        debug()
+        BuildResult result = run('compileTeavm')
+
+        then: "task successful"
+        result.task(':compileTeavm').outcome == TaskOutcome.SUCCESS
+        result.output.contains('Output file successfully built')
+
+        and: "own source copied"
+        !file('build/teavm/src/example/Main.java').exists()
+
+        and: "sources from jars copied"
+        file('build/teavm/src/org/teavm/classlib/impl/IntegerUtil.java').exists()
+    }
 }
 
 

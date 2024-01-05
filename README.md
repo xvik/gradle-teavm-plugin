@@ -248,9 +248,13 @@ to declare custom plugins repository:
      */
     targetFileName = ""
     /**
-     * Compilation target: js by default. Values: JAVASCRIPT, WEBASSEMBLY, C
+     * Compilation target: js by default. Values: JAVASCRIPT, WEBASSEMBLY, WEBASSEMBLY_WASI, C
      */
     targetType = JAVASCRIPT
+    /**
+     * Javascript module type: UMD by default. Values: COMMON_JS, UMD, NONE, ES2015
+     */
+    jsModuleType = UMD
     /**
      * Target wasm version (only for compilation to WASM). Values: V_0x1
      */
@@ -273,6 +277,11 @@ to declare custom plugins repository:
      * "sourceMapsGenerated").
      */
     sourceFilesCopied = false
+    /*
+     * Put links to local source files instead of copying them. Do nothing when "sourceFilesCopied" disabled.
+     * Make sense only for local development.
+     */
+    sourceFilesCopiedAsLocalLinks = false
     /**
      * Incremental compilation speeds up compilation, but limits some optimizations and so should be used only
      * in dev mode.
@@ -304,10 +313,6 @@ to declare custom plugins repository:
      */
     assertionsRemoved = false        
 
-    /**
-     * Top-level names limit. ONLY for JS target.
-     */
-    maxTopLevelNames = 10000
     /**
      * Minimal heap size (in mb). ONLY for WASM and C targets.
      */
@@ -355,6 +360,7 @@ teavm {
     obfuscated = false
     strict = false
     sourceFilesCopied = true
+    sourceFilesCopiedAsLocalLinks = true
     incremental = false
     debugInformationGenerated = true
     sourceMapsGenerated = true
@@ -452,7 +458,8 @@ Options list:
   mainClass = 
   entryPointName =  
   targetFileName =
-  targetType =
+  targetType = 
+  jsModuleType =
   wasmVersion =
   stopOnErrors = 
   obfuscated = 
@@ -464,8 +471,7 @@ Options list:
   shortFileNames =
   heapDump =
   fastDependencyAnalysis =
-  assertionsRemoved =        
-  maxTopLevelNames =
+  assertionsRemoved =
   minHeapSize =
   maxHeapSize =
   optimizationLevel =
