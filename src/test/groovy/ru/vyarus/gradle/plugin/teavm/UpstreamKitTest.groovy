@@ -3,7 +3,6 @@ package ru.vyarus.gradle.plugin.teavm
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
-import spock.lang.Ignore
 
 /**
  * @author Vyacheslav Rusakov
@@ -11,9 +10,9 @@ import spock.lang.Ignore
  */
 class UpstreamKitTest extends AbstractKitTest {
 
-    String GRADLE_VERSION = '8.4'
+    String GRADLE_VERSION = '8.6'
     // https://teavm.org/maven/repository/org/teavm/teavm-classlib/
-    String TEAVM_RECENT = '0.10.0-dev-5'
+    String TEAVM_RECENT = '0.10.0-dev-8'
 
     def "Check plugin execution for the latest gradle"() {
         setup:
@@ -48,7 +47,6 @@ public class Main {
         result.output.contains('Output file successfully built')
     }
 
-    @Ignore // todo no compatible dev versions yet
     def "Check plugin execution with recent compiler"() {
         setup:
         build """
