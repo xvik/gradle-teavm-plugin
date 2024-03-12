@@ -34,7 +34,7 @@ dependencies {
     implementation "org.teavm:teavm-classlib:$teavm"
     implementation "org.teavm:teavm-tooling:$teavm"
 
-    testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'
+    testImplementation 'org.spockframework:spock-core:2.3-groovy-4.0'
 }
 
 group = 'ru.vyarus'
