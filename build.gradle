@@ -6,8 +6,8 @@ plugins {
     id 'signing'
     id 'net.researchgate.release' version '3.0.2'
     id 'ru.vyarus.quality' version '5.0.0'
-    id 'io.github.gradle-nexus.publish-plugin' version '1.3.0'
-    id 'ru.vyarus.java-lib' version '2.4.0'
+    id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
+    id 'ru.vyarus.java-lib' version '3.0.0'
     id 'ru.vyarus.github-info' version '2.0.0'
     id 'com.github.ben-manes.versions' version '0.51.0'
     id "pl.droidsonroids.jacoco.testkit" version "1.0.12"
@@ -26,8 +26,6 @@ ext {
 
 repositories { mavenLocal(); mavenCentral(); gradlePluginPortal(); maven { url "https://teavm.org/maven/repository" } }
 dependencies {
-    compileOnly 'com.github.spotbugs:spotbugs-annotations:4.8.3'
-
     // compiled with this version, and this version used at runtime to support enums, but compiler could be executed
     // with different version
     implementation "org.teavm:teavm-core:$teavm"
@@ -45,12 +43,12 @@ github {
     license 'MIT'
 }
 
-pom {
+maven.pom {
     developers {
         developer {
-            id 'xvik'
-            name 'Vyacheslav Rusakov'
-            email 'vyarus@gmail.com'
+            id = 'xvik'
+            name = 'Vyacheslav Rusakov'
+            email = 'vyarus@gmail.com'
         }
     }
 }
