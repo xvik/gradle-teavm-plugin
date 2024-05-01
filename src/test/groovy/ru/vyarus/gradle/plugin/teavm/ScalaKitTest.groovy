@@ -20,7 +20,7 @@ class ScalaKitTest extends AbstractKitTest {
             
             repositories { mavenCentral() }
             dependencies {
-                implementation 'org.scala-lang:scala-library:2.13.11'
+                implementation 'org.scala-lang:scala-library:2.13.13'
             
                 implementation "org.teavm:teavm-classlib:\${teavm.version}"
                 implementation "org.teavm:teavm-jso:\${teavm.version}"

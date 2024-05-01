@@ -13,7 +13,7 @@ class KotlinKitTest extends AbstractKitTest {
         setup:
         build """
             plugins {
-                id 'org.jetbrains.kotlin.jvm' version '1.4.20'
+                id 'org.jetbrains.kotlin.jvm' version '1.9.23'
                 id 'java-library'
                 id 'ru.vyarus.teavm'
             }
