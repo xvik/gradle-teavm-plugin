@@ -204,6 +204,12 @@ public abstract class TeavmCompileTask extends DefaultTask {
     public abstract Property<Boolean> getAssertionsRemoved();
 
     /**
+     * @return max top level names (JS target only)
+     */
+    @Input
+    public abstract Property<Integer> getMaxTopLevelNames();
+
+    /**
      * @return min heap size (WASM and C targets)
      */
     @Input
@@ -312,6 +318,7 @@ public abstract class TeavmCompileTask extends DefaultTask {
             parameters.getFastDependencyAnalysis().set(getFastDependencyAnalysis());
             parameters.getAssertionsRemoved().set(getAssertionsRemoved());
 
+            parameters.getMaxTopLevelNames().set(getMaxTopLevelNames());
             parameters.getMinHeapSize().set(getMinHeapSize());
             parameters.getMaxHeapSize().set(getMaxHeapSize());
             parameters.getOptimizationLevel().set(getOptimizationLevel());

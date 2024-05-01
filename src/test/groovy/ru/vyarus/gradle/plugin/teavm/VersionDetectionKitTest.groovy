@@ -13,7 +13,6 @@ import spock.lang.IgnoreIf
 @IgnoreIf({ System.getenv('APPVEYOR') })
 class VersionDetectionKitTest extends AbstractKitTest {
 
-    @Ignore // todo no compatible dev versions yet
     def "Check teavm version auto detection from classpath"() {
         setup:
         build """
@@ -28,7 +27,7 @@ class VersionDetectionKitTest extends AbstractKitTest {
             }
             
             dependencies {
-                implementation "org.teavm:teavm-classlib:0.10.0-dev-5"
+                implementation "org.teavm:teavm-classlib:0.10.0-dev-12"
             }
 
             teavm {
@@ -54,7 +53,7 @@ public class Main {
 
         then: "task successful"
         result.task(':compileTeavm').outcome == TaskOutcome.SUCCESS
-        result.output.contains('TeaVM compiler version: 0.10.0-dev-5 (auto-detected)')
+        result.output.contains('TeaVM compiler version: 0.10.0-dev-12 (auto-detected)')
         result.output.contains('Output file successfully built')
     }
 
@@ -72,7 +71,7 @@ public class Main {
             }
             
             dependencies {
-                implementation "org.teavm:teavm-classlib:0.10.0-dev-5"
+                implementation "org.teavm:teavm-classlib:0.10.0-dev-12"
             }
 
             teavm {
@@ -98,7 +97,7 @@ public class Main {
 
         then: "task successful"
         result.task(':compileTeavm').outcome == TaskOutcome.SUCCESS
-        result.output.contains('TeaVM compiler version: 0.9.1')
+        result.output.contains('TeaVM compiler version: 0.10.0')
         result.output.contains('Output file successfully built')
     }
 }

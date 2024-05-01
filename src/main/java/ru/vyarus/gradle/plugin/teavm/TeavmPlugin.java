@@ -174,6 +174,7 @@ public class TeavmPlugin implements Plugin<Project> {
             task.getStopOnErrors().convention(extension.isStopOnErrors());
             configureDevOptions(task, options);
 
+            task.getMaxTopLevelNames().convention(extension.getMaxTopLevelNames());
             task.getMinHeapSize().convention(extension.getMinHeapSize());
             task.getMaxHeapSize().convention(extension.getMaxHeapSize());
             task.getTransformers().convention(extension.getTransformers());

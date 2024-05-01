@@ -314,6 +314,10 @@ to declare custom plugins repository:
     assertionsRemoved = false        
 
     /**
+     * Top-level names limit. ONLY for JS target.
+     */
+    maxTopLevelNames = 80000
+    /**
      * Minimal heap size (in mb). ONLY for WASM and C targets.
      */
     minHeapSize = 4
@@ -471,7 +475,8 @@ Options list:
   shortFileNames =
   heapDump =
   fastDependencyAnalysis =
-  assertionsRemoved =
+  assertionsRemoved =        
+  maxTopLevelNames =
   minHeapSize =
   maxHeapSize =
   optimizationLevel =

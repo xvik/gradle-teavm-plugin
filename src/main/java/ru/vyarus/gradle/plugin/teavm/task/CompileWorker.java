@@ -1,7 +1,6 @@
 package ru.vyarus.gradle.plugin.teavm.task;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.io.FileUtils;
 import org.gradle.workers.WorkAction;
 import org.teavm.tooling.TeaVMProblemRenderer;
 import org.teavm.tooling.TeaVMSourceFilePolicy;
@@ -21,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 /**
  * TeaVM compilation worker. Worker used to execute teavm inside custom classpath (dynamic teavm version selection).
@@ -61,6 +59,7 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
         build.setClassPathEntries(getParameters().getClassPathEntries().get());
         build.setObfuscated(getParameters().getObfuscated().get());
         build.setStrict(getParameters().getStrict().get());
+        build.setMaxTopLevelNames(getParameters().getMaxTopLevelNames().get());
         build.setTargetDirectory(getParameters().getTargetDirectory().get().getAsFile().getAbsolutePath());
 
         if (getParameters().getTransformers().isPresent()) {
@@ -123,19 +122,6 @@ public abstract class CompileWorker implements WorkAction<CompileParameters> {
         }
 
         if (result.getProblems() == null || result.getProblems().getSevereProblems().isEmpty()) {
-            System.out.println("Resources used: " + result.getUsedResources().size());
-            if (getParameters().getDebug().get()) {
-                System.out.println(result.getUsedResources().stream()
-                        .map(s -> "\t" + s).sorted().collect(Collectors.joining("\n")));
-
-                System.out.println("Generated files: " + result.getGeneratedFiles().size());
-                System.out.println(result.getGeneratedFiles().stream()
-                        .map(s -> "\t" + s.replace(getParameters().getTargetDirectory().get().getAsFile()
-                                .getAbsolutePath() + File.separator, "") + " ("
-                                + FileUtils.byteCountToDisplaySize(new File(s).length()) + ")")
-                        .sorted()
-                        .collect(Collectors.joining("\n ")));
-            }
             System.out.println("Overall time: " + DurationFormatter.format(time));
         }
 

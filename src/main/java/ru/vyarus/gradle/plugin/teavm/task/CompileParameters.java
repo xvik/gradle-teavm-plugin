@@ -148,6 +148,11 @@ public interface CompileParameters extends WorkParameters {
     Property<Boolean> getAssertionsRemoved();
 
     /**
+     * @return max top level names (JS target only)
+     */
+    Property<Integer> getMaxTopLevelNames();
+
+    /**
      * @return min heap size (WASM and C targets)
      */
     Property<Integer> getMinHeapSize();

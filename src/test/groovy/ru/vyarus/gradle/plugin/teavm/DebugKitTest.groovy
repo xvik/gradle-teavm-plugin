@@ -67,13 +67,5 @@ Extra source directories:
 \tsrc/foo/java
 """)
         out.contains('Resolved source artifacts for configuration\'runtimeClasspath\':')
-
-        out.contains("""Resources used: 29
-\texample/Main.java
-""")
-        out.contains("""Generated files: 2
-\tclasses.js (12 KB)
- \tclasses.js.map (2 KB)
-""")
     }
 }

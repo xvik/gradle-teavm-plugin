@@ -57,7 +57,7 @@ public class TeavmExtension extends DevOptions {
     /**
      * Teavm version to use. Ignored when {@link #autoVersion} enabled.
      */
-    private String version = "0.9.1";
+    private String version = "0.10.0";
 
     /**
      * Source sets to compile js from. By default, java, kotlin and scala supported.
@@ -120,6 +120,10 @@ public class TeavmExtension extends DevOptions {
      */
     private boolean stopOnErrors = true;
 
+    /**
+     * Top-level names limit. ONLY for JS target.
+     */
+    private int maxTopLevelNames = 80_000;
     /**
      * Minimal heap size (in mb). ONLY for WASM and C targets.
      */
@@ -316,6 +320,14 @@ public class TeavmExtension extends DevOptions {
 
     public void setStopOnErrors(final boolean stopOnErrors) {
         this.stopOnErrors = stopOnErrors;
+    }
+
+    public int getMaxTopLevelNames() {
+        return maxTopLevelNames;
+    }
+
+    public void setMaxTopLevelNames(final int maxTopLevelNames) {
+        this.maxTopLevelNames = maxTopLevelNames;
     }
 
     public int getMinHeapSize() {

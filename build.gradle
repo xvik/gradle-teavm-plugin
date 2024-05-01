@@ -21,10 +21,10 @@ wrapper {
 }
 
 ext {
-    teavm = '0.9.1'
+    teavm = '0.10.0'
 }
 
-repositories { mavenLocal(); mavenCentral(); gradlePluginPortal() }
+repositories { mavenLocal(); mavenCentral(); gradlePluginPortal(); maven { url "https://teavm.org/maven/repository" } }
 dependencies {
     compileOnly 'com.github.spotbugs:spotbugs-annotations:4.8.3'
 

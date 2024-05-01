@@ -65,11 +65,11 @@ class TeavmPluginTest extends AbstractTest {
 
         task.getClassPath().get().collect { project.relativePath(it.asFile).replace(File.separator, '/')} as Set == [
                 'build/classes/java/main', 'build/resources/main', 'build/classes/foo'] as Set
-        task.dependencies.files.collect { it.getName()}.contains('teavm-classlib-0.9.1.jar')
+        task.dependencies.files.collect { it.getName()}.contains('teavm-classlib-0.10.0.jar')
 
         task.getSources().get().collect { project.relativePath(it.asFile).replace(File.separator, '/')} as Set == [
                 'src/main/java', 'src/main/resources', 'src/foo/java'] as Set
-        task.sourceDependencies.files.collect { it.getName()}.contains('teavm-classlib-0.9.1-sources.jar')
+        task.sourceDependencies.files.collect { it.getName()}.contains('teavm-classlib-0.10.0-sources.jar')
 
         project.relativePath(task.getTargetDir().get().asFile).replace(File.separator, '/') == 'build/teavm'
         project.relativePath(task.getCacheDir().get().asFile).replace(File.separator, '/') == 'build/teavm-cache'
@@ -81,6 +81,7 @@ class TeavmPluginTest extends AbstractTest {
         task.jsModuleType.get() == JSModuleType.ES2015
         task.wasmVersion.get() == WasmBinaryVersion.V_0x1
         task.stopOnErrors.get() == true
+        task.maxTopLevelNames.get() == 80000
         task.minHeapSize.get() == 4
         task.maxHeapSize.get() == 128
         task.transformers.get() == ['com.bar.Other']

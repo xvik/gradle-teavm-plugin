@@ -1,7 +1,7 @@
-* Update to teavm 0.9.1
-  - Removed maxTopLevelNames option
+* Update to teavm 0.10.0
   - Add jsModuleType option
   - Add sourceFilesCopiedAsLocalLinks dev option (in teavm enum used for 3 options: no, copy, links)
+  - Removed extra debug output (generated classes, used resources) - compiler does not provide it anymore
 
 Teavm behavior change: sourceFilesCopied option now works only when sourceMapsGenerated enabled 
 Plugin is not compatible with teavm 0.9.0 (due to new compiler options) 
