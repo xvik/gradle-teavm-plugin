@@ -26,7 +26,7 @@ ext {
 
 repositories { mavenLocal(); mavenCentral(); gradlePluginPortal(); maven { url "https://teavm.org/maven/repository" } }
 dependencies {
-    compileOnly 'com.github.spotbugs:spotbugs-annotations:4.8.3'
+    compileOnly 'com.github.spotbugs:spotbugs-annotations:4.8.4'
 
     // compiled with this version, and this version used at runtime to support enums, but compiler could be executed
     // with different version
