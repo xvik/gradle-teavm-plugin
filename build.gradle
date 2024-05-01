@@ -13,11 +13,14 @@ plugins {
     id "pl.droidsonroids.jacoco.testkit" version "1.0.12"
 }
 
-// teavm compiled for 11
-sourceCompatibility = "11"
+java {
+    // teavm compiled for 11
+    sourceCompatibility = "11"
+}
 
 wrapper {
-    gradleVersion = '7.6'
+    gradleVersion = '8.7'
+    distributionType = Wrapper.DistributionType.BIN
 }
 
 ext {
