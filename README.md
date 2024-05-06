@@ -235,9 +235,9 @@ to declare custom plugins repository:
     cacheDir = 'build/teavm-cache'
 
     /**
-     * Main application class.
+     * Main application class (required).
      */
-    String mainClass
+    mainClass
     /**
      * Entry point name (entry static method).
      */
