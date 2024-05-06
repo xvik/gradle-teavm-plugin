@@ -1,11 +1,7 @@
 plugins {
     id 'scala'
     id 'java-library'
-    id 'ru.vyarus.teavm' // version '1.1.0'
-}
-
-ext {
-    teavm = '0.9.0'
+    id 'ru.vyarus.teavm'
 }
 
 repositories {
@@ -15,8 +11,8 @@ repositories {
 dependencies {
     implementation 'org.scala-lang:scala-library:2.13.13'
 
-    implementation "org.teavm:teavm-classlib:$teavm"
-    implementation "org.teavm:teavm-jso-apis:$teavm"
+    implementation "org.teavm:teavm-classlib:$rootProject.teavmVersion"
+    implementation "org.teavm:teavm-jso-apis:$rootProject.teavmVersion"
 }
 
 teavm {

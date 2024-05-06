@@ -1,11 +1,19 @@
 pluginManagement {
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == 'ru.vyarus.teavm') {
+                useModule('ru.vyarus:gradle-teavm-plugin:master-SNAPSHOT')
+            }
+        }
+    }
     repositories {
         mavenLocal()
         gradlePluginPortal()
+        maven { url 'https://jitpack.io' }
     }
 }
 
 include 'java',
-        'flavour',
+//        'flavour',
         'kotlin',
         'scala'

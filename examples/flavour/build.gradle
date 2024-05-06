@@ -1,10 +1,11 @@
 plugins {
     id 'java'
-    id 'ru.vyarus.teavm' // version '1.1.0'
+    // the latest plugin compatible with 0.8
+    id 'ru.vyarus.teavm' version '1.2.0'
 }
 
 ext {
-    // not compatible with teavm 0.9!
+    // not compatible with teavm 0.9 and above!
     teavm = '0.8.0'
     flavour = '0.2.1'
 }

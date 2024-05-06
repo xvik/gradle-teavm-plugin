@@ -1,7 +1,18 @@
-plugins {
-    id 'ru.vyarus.teavm' version '1.2.0'
+// see settings.gradle for plugin version
+//plugins {
+//    id 'ru.vyarus.teavm' version '1.2.0'
+//}
+
+ext {
+    teavmVersion = '0.10.0'
 }
 
 wrapper {
     gradleVersion = '8.7'
+}
+
+subprojects {
+    afterEvaluate {
+        tasks.findByName('build').dependsOn('buildWebapp')
+    }
 }

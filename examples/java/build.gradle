@@ -1,10 +1,6 @@
 plugins {
     id 'java'
-    id 'ru.vyarus.teavm' // version '1.1.0'
-}
-
-ext {
-    teavm = '0.9.1'
+    id 'ru.vyarus.teavm'
 }
 
 repositories {
@@ -12,11 +8,11 @@ repositories {
 }
 
 dependencies {
-    implementation "org.teavm:teavm-classlib:$teavm"
-    implementation "org.teavm:teavm-jso-apis:$teavm"
+    implementation "org.teavm:teavm-classlib:$rootProject.teavmVersion"
+    implementation "org.teavm:teavm-jso-apis:$rootProject.teavmVersion"
 
     testImplementation "junit:junit:4.13.2"
-    testImplementation "org.teavm:teavm-junit:$teavm"
+    testImplementation "org.teavm:teavm-junit:$rootProject.teavmVersion"
 }
 
 teavm {
@@ -29,7 +25,8 @@ teavm {
 // https://teavm.org/docs/tooling/testing.html
 // NOTE: compilation options above are not used for test!
 test {
-    systemProperty 'teavm.junit.target', 'build/teavm-test'
+    systemProperty 'teavm.junit.target', file('build/teavm-test').absolutePath
+    systemProperty 'teavm.junit.threads', '1'
     systemProperty 'teavm.junit.js', 'true'
     systemProperty 'teavm.junit.js.runner', 'browser-chrome'
     systemProperty 'teavm.junit.js.decodeStack', 'true'
