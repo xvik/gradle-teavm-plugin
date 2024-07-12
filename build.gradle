@@ -24,7 +24,7 @@ wrapper {
 }
 
 ext {
-    teavm = '0.10.0'
+    teavm = '0.10.1'
 }
 
 repositories { mavenLocal(); mavenCentral(); gradlePluginPortal(); maven { url "https://teavm.org/maven/repository" } }
