@@ -96,7 +96,7 @@ Current flavour is *not compatible* with teavm 0.9
 * [Flavour example](examples/flavour) *for teavm 0.8
 
 Maintained flavour **fork**: [site](https://flavour.sourceforge.io/), [flavour docs](https://frequal.com/teavm-site/docs/flavour/templates.html) (removed from teavm site),
-[source](https://sourceforge.net/projects/flavour/) (still not yet compatible with 0.9)
+[source](https://sourceforge.net/projects/flavour/) (still not yet compatible with 0.9), [teavm 0.11 compatible PR](https://github.com/konsoletyper/teavm-flavour/pull/78) (not accepted, but fork still present)
 
 #### Plugin configuration
 
