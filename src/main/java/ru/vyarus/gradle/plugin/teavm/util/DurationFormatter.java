@@ -27,7 +27,6 @@ public final class DurationFormatter {
      * @param duration duration in milliseconds
      * @return human-readable (short) duration
      */
-    @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
     public static String format(final long duration) {
         long remain = duration;
         if (remain == 0L) {

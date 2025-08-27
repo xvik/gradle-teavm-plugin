@@ -33,7 +33,7 @@ import java.util.Set;
  * @since 27.12.2022
  */
 @SuppressWarnings({"checkstyle:ExplicitInitialization", "PMD.RedundantFieldInitializer", "PMD.ExcessivePublicCount",
-        "PMD.TooManyFields", "PMD.AvoidFieldNameMatchingMethodName"})
+        "PMD.TooManyFields", "PMD.AvoidFieldNameMatchingMethodName", "PMD.GodClass"})
 public class TeavmExtension extends DevOptions {
 
     /**
