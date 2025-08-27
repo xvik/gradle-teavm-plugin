@@ -3,16 +3,18 @@ package ru.vyarus.gradle.plugin.teavm
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
+import spock.lang.Requires
 
 /**
  * @author Vyacheslav Rusakov
  * @since 21.01.2023
  */
+@Requires({ jvm.java17Compatible })
 class UpstreamKitTest extends AbstractKitTest {
 
-    String GRADLE_VERSION = '8.7'
+    String GRADLE_VERSION = '9.0.0'
     // https://teavm.org/maven/repository/org/teavm/teavm-classlib/
-    String TEAVM_RECENT = '0.10.0-dev-12'
+    String TEAVM_RECENT = '0.12.0-dev-11'
 
     def "Check plugin execution for the latest gradle"() {
         setup:
